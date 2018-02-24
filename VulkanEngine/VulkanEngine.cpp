@@ -6,7 +6,7 @@
 
 int main()
 {
-	VersionNumber apiVersionNumber(1, 0, 68);
+	VersionNumber apiVersionNumber(1, 0, 65);
 	VersionNumber applicationVersionNumber(1, 0, 0);
 	VersionNumber engineVersionNumber(1, 0, 0);
 
@@ -36,7 +36,34 @@ int main()
 	instanceCreateInfo.enabledExtensionCount	= 0;
 	instanceCreateInfo.ppEnabledExtensionNames	= nullptr;
 
-	vkCreateInstance(&instanceCreateInfo, nullptr, &vulkanInstance);
+	assert(vkCreateInstance(&instanceCreateInfo, nullptr, &vulkanInstance) == VK_SUCCESS);
+
+	uint32_t physicalDeviceCount = 0;
+	vkEnumeratePhysicalDevices(vulkanInstance, &physicalDeviceCount, nullptr);
+
+	assert(physicalDeviceCount > 0);
+
+	VkPhysicalDevice * physicalDevices = new VkPhysicalDevice[physicalDeviceCount];
+	assert(vkEnumeratePhysicalDevices(vulkanInstance, &physicalDeviceCount, physicalDevices) == VK_SUCCESS);
+	int supportedDeviceIndex = -1;
+
+	for (uint32_t i = 0; i < physicalDeviceCount; ++i)
+	{
+		VkPhysicalDeviceProperties deviceProperties;
+		vkGetPhysicalDeviceProperties(physicalDevices[i], &deviceProperties);
+		VersionNumber deviceAPIVersionNumber = VersionNumber::fromInteger(deviceProperties.apiVersion);
+
+		if (deviceAPIVersionNumber == apiVersionNumber)
+		{
+			supportedDeviceIndex = i;
+			break;
+		}
+	}
+
+	assert(supportedDeviceIndex != -1);
+
+	delete[](physicalDevices);
+	vkDestroyInstance(vulkanInstance, nullptr);
 
     return 0;
 }
