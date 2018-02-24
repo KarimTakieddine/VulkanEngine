@@ -22,12 +22,17 @@ int main()
 	VkInstance vulkanInstance;
 	VkInstanceCreateInfo instanceCreateInfo;
 
+	char const * enabledLayerNames[1] =
+	{
+		"VK_LAYER_LUNARG_api_dump"
+	};
+
 	instanceCreateInfo.sType					= VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	instanceCreateInfo.flags					= 0;
 	instanceCreateInfo.pNext					= nullptr;
 	instanceCreateInfo.pApplicationInfo			= &applicationInfo;
-	instanceCreateInfo.enabledLayerCount		= 0;
-	instanceCreateInfo.ppEnabledLayerNames		= nullptr;
+	instanceCreateInfo.enabledLayerCount		= 1;
+	instanceCreateInfo.ppEnabledLayerNames		= enabledLayerNames;
 	instanceCreateInfo.enabledExtensionCount	= 0;
 	instanceCreateInfo.ppEnabledExtensionNames	= nullptr;
 
