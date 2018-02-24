@@ -1,0 +1,13 @@
+.vs/
+/Debug/
+
+**/*.suo
+**/*.user
+
+**/*.pch
+**/*.obj
+**/*.log
+**/*.tlog
+
+**/*.pdb
+**/*.idb
