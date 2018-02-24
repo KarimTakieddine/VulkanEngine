@@ -33,12 +33,12 @@ int main()
 
 	instanceCreateInfo.sType					= VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	instanceCreateInfo.flags					= 0;
-	instanceCreateInfo.pNext					= nullptr;
 	instanceCreateInfo.pApplicationInfo			= &applicationInfo;
 	instanceCreateInfo.enabledLayerCount		= 1;
 	instanceCreateInfo.ppEnabledLayerNames		= enabledLayerNames;
 	instanceCreateInfo.ppEnabledExtensionNames	= glfwGetRequiredInstanceExtensions(&requiredExtensionCount);
 	instanceCreateInfo.enabledExtensionCount	= requiredExtensionCount;
+	instanceCreateInfo.pNext					= nullptr;
 
 	assert(vkCreateInstance(&instanceCreateInfo, nullptr, &vulkanInstance) == VK_SUCCESS);
 
@@ -90,11 +90,48 @@ int main()
 
 	assert(deviceQueueFamilyIndex != -1);
 
+	VkDeviceQueueCreateInfo deviceQueueCreateInfo;
+
+	float queuePriorities[1]				= { 1.0f };
+	deviceQueueCreateInfo.sType				= VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+	deviceQueueCreateInfo.flags				= 0;
+	deviceQueueCreateInfo.queueCount		= 1;
+	deviceQueueCreateInfo.pQueuePriorities	= queuePriorities;
+	deviceQueueCreateInfo.queueFamilyIndex	= deviceQueueFamilyIndex;
+	deviceQueueCreateInfo.pNext				= nullptr;
+
+	VkPhysicalDeviceFeatures enabledDeviceFeatures;
+	vkGetPhysicalDeviceFeatures(physicalDevice, &enabledDeviceFeatures);
+
+	VkDeviceCreateInfo logicalDeviceCreateInfo;
 	
+	logicalDeviceCreateInfo.sType					= VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+	logicalDeviceCreateInfo.flags					= 0;
+	logicalDeviceCreateInfo.queueCreateInfoCount	= 1;
+	logicalDeviceCreateInfo.pEnabledFeatures		= &enabledDeviceFeatures;
+	logicalDeviceCreateInfo.pQueueCreateInfos		= &deviceQueueCreateInfo;
+	logicalDeviceCreateInfo.enabledLayerCount		= 0;
+	logicalDeviceCreateInfo.ppEnabledLayerNames		= nullptr;
+	logicalDeviceCreateInfo.enabledExtensionCount	= 0;
+	logicalDeviceCreateInfo.ppEnabledExtensionNames = nullptr;
+	logicalDeviceCreateInfo.pNext					= nullptr;
+
+	VkDevice logicalDevice;
+	assert(vkCreateDevice(physicalDevice, &logicalDeviceCreateInfo, nullptr, &logicalDevice) == VK_SUCCESS);
 
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	GLFWwindow * window = glfwCreateWindow(640, 480, "Vulkan Window", nullptr, nullptr);
+
+	VkSurfaceKHR surface;
+	assert(glfwCreateWindowSurface(vulkanInstance, window, nullptr, &surface) == VK_SUCCESS);
+
+	VkBool32 deviceSupportsPresentation = false;
+	vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, deviceQueueFamilyIndex, surface, &deviceSupportsPresentation);
+	assert(deviceSupportsPresentation);
+
+	VkQueue presentationQueue;
+	vkGetDeviceQueue(logicalDevice, deviceQueueFamilyIndex, 0, &presentationQueue);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -107,6 +144,9 @@ int main()
 		}
 	}
 
+	vkDeviceWaitIdle(logicalDevice);
+
+	vkDestroyDevice(logicalDevice, nullptr);
 	delete[](physicalDevices);
 	vkDestroyInstance(vulkanInstance, nullptr);
 	glfwDestroyWindow(window);
