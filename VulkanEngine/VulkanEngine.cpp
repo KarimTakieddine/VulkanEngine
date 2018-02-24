@@ -27,20 +27,24 @@ int main()
 		"VK_LAYER_LUNARG_api_dump"
 	};
 
+	uint32_t requiredExtensionCount = 0;
+
+	assert(glfwInit() == GL_TRUE);
+
 	instanceCreateInfo.sType					= VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	instanceCreateInfo.flags					= 0;
 	instanceCreateInfo.pNext					= nullptr;
 	instanceCreateInfo.pApplicationInfo			= &applicationInfo;
 	instanceCreateInfo.enabledLayerCount		= 1;
 	instanceCreateInfo.ppEnabledLayerNames		= enabledLayerNames;
-	instanceCreateInfo.enabledExtensionCount	= 0;
-	instanceCreateInfo.ppEnabledExtensionNames	= nullptr;
+	instanceCreateInfo.ppEnabledExtensionNames	= glfwGetRequiredInstanceExtensions(&requiredExtensionCount);
+	instanceCreateInfo.enabledExtensionCount	= requiredExtensionCount;
 
 	assert(vkCreateInstance(&instanceCreateInfo, nullptr, &vulkanInstance) == VK_SUCCESS);
 
 	uint32_t physicalDeviceCount = 0;
 	vkEnumeratePhysicalDevices(vulkanInstance, &physicalDeviceCount, nullptr);
-
+	
 	assert(physicalDeviceCount > 0);
 
 	VkPhysicalDevice * physicalDevices = new VkPhysicalDevice[physicalDeviceCount];
@@ -62,8 +66,51 @@ int main()
 
 	assert(supportedDeviceIndex != -1);
 
+	VkPhysicalDevice & physicalDevice = physicalDevices[supportedDeviceIndex];
+
+	uint32_t deviceQueueFamilyCount = 0;
+	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &deviceQueueFamilyCount, nullptr);
+	assert(deviceQueueFamilyCount > 0);
+	VkQueueFamilyProperties * deviceQueueFamilyPropertiesList = new VkQueueFamilyProperties[deviceQueueFamilyCount];
+	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &deviceQueueFamilyCount, deviceQueueFamilyPropertiesList);
+
+	int deviceQueueFamilyIndex = -1;
+
+	for (uint32_t i = 0; i < deviceQueueFamilyCount; ++i)
+	{
+		VkQueueFamilyProperties const & deviceQueueFamilyProperties = deviceQueueFamilyPropertiesList[i];
+		int requiredFlags											= VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT;
+
+		if ((deviceQueueFamilyProperties.queueFlags & requiredFlags) == requiredFlags)
+		{
+			deviceQueueFamilyIndex = i;
+			break;
+		}
+	}
+
+	assert(deviceQueueFamilyIndex != -1);
+
+	
+
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+	GLFWwindow * window = glfwCreateWindow(640, 480, "Vulkan Window", nullptr, nullptr);
+
+	while (!glfwWindowShouldClose(window))
+	{
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+
+		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		{
+			glfwSetWindowShouldClose(window, GL_TRUE);
+		}
+	}
+
 	delete[](physicalDevices);
 	vkDestroyInstance(vulkanInstance, nullptr);
+	glfwDestroyWindow(window);
+	glfwTerminate();
 
     return 0;
 }

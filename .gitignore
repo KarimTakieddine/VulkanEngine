@@ -1,14 +1,13 @@
 .vs/
 /Debug/
 
-**/*.suo
-**/*.user
-
-**/*.pch
-**/*.obj
-**/*.log
-**/*.tlog
-
-**/*.pdb
 **/*.idb
 **/*.ilk
+**/*.log
+**/*.obj
+**/*.pch
+**/*.pdb
+**/*.suo
+**/*.tlog
+**/*.txt
+**/*.user
