@@ -22,9 +22,11 @@ int main()
 	VkInstance vulkanInstance;
 	VkInstanceCreateInfo instanceCreateInfo;
 
-	char const * enabledLayerNames[1] =
+	char const * enabledLayerNames[3] =
 	{
-		"VK_LAYER_LUNARG_api_dump"
+		"VK_LAYER_LUNARG_api_dump",
+		"VK_LAYER_LUNARG_core_validation",
+		"VK_LAYER_LUNARG_parameter_validation"
 	};
 
 	uint32_t requiredExtensionCount = 0;
@@ -34,7 +36,7 @@ int main()
 	instanceCreateInfo.sType					= VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	instanceCreateInfo.flags					= 0;
 	instanceCreateInfo.pApplicationInfo			= &applicationInfo;
-	instanceCreateInfo.enabledLayerCount		= 1;
+	instanceCreateInfo.enabledLayerCount		= 3;
 	instanceCreateInfo.ppEnabledLayerNames		= enabledLayerNames;
 	instanceCreateInfo.ppEnabledExtensionNames	= glfwGetRequiredInstanceExtensions(&requiredExtensionCount);
 	instanceCreateInfo.enabledExtensionCount	= requiredExtensionCount;
@@ -103,8 +105,12 @@ int main()
 	VkPhysicalDeviceFeatures enabledDeviceFeatures;
 	vkGetPhysicalDeviceFeatures(physicalDevice, &enabledDeviceFeatures);
 
+	char const * deviceExtensionNames[1] =
+	{
+		"VK_KHR_swapchain"
+	};
+
 	VkDeviceCreateInfo logicalDeviceCreateInfo;
-	
 	logicalDeviceCreateInfo.sType					= VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 	logicalDeviceCreateInfo.flags					= 0;
 	logicalDeviceCreateInfo.queueCreateInfoCount	= 1;
@@ -112,8 +118,8 @@ int main()
 	logicalDeviceCreateInfo.pQueueCreateInfos		= &deviceQueueCreateInfo;
 	logicalDeviceCreateInfo.enabledLayerCount		= 0;
 	logicalDeviceCreateInfo.ppEnabledLayerNames		= nullptr;
-	logicalDeviceCreateInfo.enabledExtensionCount	= 0;
-	logicalDeviceCreateInfo.ppEnabledExtensionNames = nullptr;
+	logicalDeviceCreateInfo.enabledExtensionCount	= 1;
+	logicalDeviceCreateInfo.ppEnabledExtensionNames = deviceExtensionNames;
 	logicalDeviceCreateInfo.pNext					= nullptr;
 
 	VkDevice logicalDevice;
@@ -178,6 +184,42 @@ int main()
 
 	assert(vkCreateSwapchainKHR(logicalDevice, &deviceSwapChainCreateInfo, nullptr, &deviceSwapChain) == VK_SUCCESS);
 
+	uint32_t swapChainImageCount = 0;
+	vkGetSwapchainImagesKHR(logicalDevice, deviceSwapChain, &swapChainImageCount, nullptr);
+	assert(swapChainImageCount >= deviceSurfaceCapabilities.minImageCount);
+	VkImage * swapChainImages = new VkImage[swapChainImageCount];
+	vkGetSwapchainImagesKHR(logicalDevice, deviceSwapChain, &swapChainImageCount, swapChainImages);
+
+	VkImageView * swapChainImageViews = new VkImageView[swapChainImageCount]();
+
+	for (uint32_t i = 0; i < swapChainImageCount; ++i)
+	{
+		VkComponentMapping imageComponentMapping;
+		imageComponentMapping.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+		imageComponentMapping.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+		imageComponentMapping.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+		imageComponentMapping.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+		VkImageSubresourceRange imageSubResourceRange;
+		imageSubResourceRange.aspectMask		= VK_IMAGE_ASPECT_COLOR_BIT;
+		imageSubResourceRange.baseMipLevel		= 0;
+		imageSubResourceRange.levelCount		= 1;
+		imageSubResourceRange.baseArrayLayer	= 0;
+		imageSubResourceRange.layerCount		= 1;
+
+		VkImageViewCreateInfo imageViewCreateInfo;
+		imageViewCreateInfo.sType				= VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		imageViewCreateInfo.flags				= 0;
+		imageViewCreateInfo.image				= swapChainImages[i];
+		imageViewCreateInfo.format				= selectedSurfaceFormat.format;
+		imageViewCreateInfo.viewType			= VK_IMAGE_VIEW_TYPE_2D;
+		imageViewCreateInfo.components			= imageComponentMapping;
+		imageViewCreateInfo.subresourceRange	= imageSubResourceRange;
+		imageViewCreateInfo.pNext				= nullptr;
+
+		assert(vkCreateImageView(logicalDevice, &imageViewCreateInfo, nullptr, &swapChainImageViews[i]) == VK_SUCCESS);
+	}
+
 	VkQueue presentationQueue;
 	vkGetDeviceQueue(logicalDevice, deviceQueueFamilyIndex, 0, &presentationQueue);
 
@@ -192,16 +234,10 @@ int main()
 		}
 	}
 
-	uint32_t swapChainImageCount = 0;
-	vkGetSwapchainImagesKHR(logicalDevice, deviceSwapChain, &swapChainImageCount, nullptr);
-	assert(swapChainImageCount >= deviceSurfaceCapabilities.minImageCount);
-	VkImage * swapChainImages = new VkImage[swapChainImageCount];
-	vkGetSwapchainImagesKHR(logicalDevice, deviceSwapChain, &swapChainImageCount, swapChainImages);
-
-
-
 	vkDeviceWaitIdle(logicalDevice);
 
+	delete[](swapChainImageViews);
+	delete[](swapChainImages);
 	vkDestroySwapchainKHR(logicalDevice, deviceSwapChain, nullptr);
 	delete[](deviceSupportedSurfaceFormats);
 	vkDestroyDevice(logicalDevice, nullptr);
