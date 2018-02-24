@@ -29,7 +29,7 @@ int main()
 
 	uint32_t requiredExtensionCount = 0;
 
-	assert(glfwInit() == GL_TRUE);
+	assert(glfwInit() == VK_TRUE);
 
 	instanceCreateInfo.sType					= VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	instanceCreateInfo.flags					= 0;
@@ -130,6 +130,54 @@ int main()
 	vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, deviceQueueFamilyIndex, surface, &deviceSupportsPresentation);
 	assert(deviceSupportsPresentation);
 
+	VkSurfaceCapabilitiesKHR deviceSurfaceCapabilities;
+	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &deviceSurfaceCapabilities);
+
+	uint32_t formatCount;
+	vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr);
+	assert(formatCount > 0);
+	VkSurfaceFormatKHR * deviceSupportedSurfaceFormats = new VkSurfaceFormatKHR[formatCount];
+	vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, deviceSupportedSurfaceFormats);
+	int selectedSurfaceFormatIndex = -1;
+
+	for (uint32_t i = 0; i < formatCount; ++i)
+	{
+		VkSurfaceFormatKHR const & surfaceFormat = deviceSupportedSurfaceFormats[i];
+
+		if (surfaceFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR && surfaceFormat.format == VK_FORMAT_B8G8R8A8_UNORM)
+		{
+			selectedSurfaceFormatIndex = i;
+			break;
+		}
+	}
+
+	assert(selectedSurfaceFormatIndex != -1);
+
+	VkSurfaceFormatKHR const & selectedSurfaceFormat = deviceSupportedSurfaceFormats[selectedSurfaceFormatIndex];
+
+	VkSwapchainKHR deviceSwapChain;
+	VkSwapchainCreateInfoKHR deviceSwapChainCreateInfo;
+	deviceSwapChainCreateInfo.sType					= VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+	deviceSwapChainCreateInfo.flags					= 0;
+	deviceSwapChainCreateInfo.clipped				= VK_TRUE;
+	deviceSwapChainCreateInfo.surface				= surface;
+	deviceSwapChainCreateInfo.minImageCount			= deviceSurfaceCapabilities.minImageCount;
+	deviceSwapChainCreateInfo.imageExtent			= deviceSurfaceCapabilities.currentExtent;
+	deviceSwapChainCreateInfo.imageFormat			= selectedSurfaceFormat.format;
+	deviceSwapChainCreateInfo.imageColorSpace		= selectedSurfaceFormat.colorSpace;
+	deviceSwapChainCreateInfo.imageArrayLayers		= 1;
+	deviceSwapChainCreateInfo.imageUsage			= deviceSurfaceCapabilities.supportedUsageFlags;
+	deviceSwapChainCreateInfo.imageSharingMode		= VK_SHARING_MODE_EXCLUSIVE;
+	deviceSwapChainCreateInfo.queueFamilyIndexCount = 1;
+	deviceSwapChainCreateInfo.pQueueFamilyIndices	= reinterpret_cast<uint32_t const *>(&deviceQueueFamilyIndex);
+	deviceSwapChainCreateInfo.compositeAlpha		= VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+	deviceSwapChainCreateInfo.presentMode			= VK_PRESENT_MODE_FIFO_KHR;
+	deviceSwapChainCreateInfo.preTransform			= deviceSurfaceCapabilities.currentTransform;
+	deviceSwapChainCreateInfo.oldSwapchain			= VK_NULL_HANDLE;
+	deviceSwapChainCreateInfo.pNext					= nullptr;
+
+	assert(vkCreateSwapchainKHR(logicalDevice, &deviceSwapChainCreateInfo, nullptr, &deviceSwapChain) == VK_SUCCESS);
+
 	VkQueue presentationQueue;
 	vkGetDeviceQueue(logicalDevice, deviceQueueFamilyIndex, 0, &presentationQueue);
 
@@ -144,8 +192,18 @@ int main()
 		}
 	}
 
+	uint32_t swapChainImageCount = 0;
+	vkGetSwapchainImagesKHR(logicalDevice, deviceSwapChain, &swapChainImageCount, nullptr);
+	assert(swapChainImageCount >= deviceSurfaceCapabilities.minImageCount);
+	VkImage * swapChainImages = new VkImage[swapChainImageCount];
+	vkGetSwapchainImagesKHR(logicalDevice, deviceSwapChain, &swapChainImageCount, swapChainImages);
+
+
+
 	vkDeviceWaitIdle(logicalDevice);
 
+	vkDestroySwapchainKHR(logicalDevice, deviceSwapChain, nullptr);
+	delete[](deviceSupportedSurfaceFormats);
 	vkDestroyDevice(logicalDevice, nullptr);
 	delete[](physicalDevices);
 	vkDestroyInstance(vulkanInstance, nullptr);
