@@ -41,10 +41,15 @@ m_patch(other.m_patch)
 
 uint32_t VersionNumber::toInteger() const
 {
-	return (m_major << 22) + (m_minor << 12) + m_patch;
+	return (m_major << 22) | (m_minor << 12) | m_patch;
 }
 
 bool VersionNumber::operator==(VersionNumber const & other)
 {
 	return (m_major == other.m_major) && (m_minor == other.m_minor) && (m_patch == other.m_patch);
+}
+
+bool VersionNumber::operator!=(VersionNumber const & other)
+{
+	return !(*this == other);
 }

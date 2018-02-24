@@ -32,4 +32,6 @@ public:
 	uint32_t toInteger() const;
 
 	bool operator==(VersionNumber const & other);
+
+	bool operator!=(VersionNumber const & other);
 };
