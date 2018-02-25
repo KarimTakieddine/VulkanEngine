@@ -451,7 +451,7 @@ int main()
 
 	VkFramebuffer * swapChainFrameBuffers = new VkFramebuffer[swapChainImageCount]();
 
-	for (int i = 0; i < swapChainImageCount; ++i)
+	for (uint32_t i = 0; i < swapChainImageCount; ++i)
 	{
 		VkFramebufferCreateInfo frameBufferCreateInfo;
 		frameBufferCreateInfo.sType				= VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -482,10 +482,43 @@ int main()
 	commandBufferAllocateInfo.sType					= VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	commandBufferAllocateInfo.commandPool			= commandPool;
 	commandBufferAllocateInfo.level					= VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	commandBufferAllocateInfo.commandBufferCount	= 2;
+	commandBufferAllocateInfo.commandBufferCount	= swapChainImageCount;
 	commandBufferAllocateInfo.pNext					= nullptr;
 
 	assert(vkAllocateCommandBuffers(logicalDevice, &commandBufferAllocateInfo, commandBuffers) == VK_SUCCESS);
+
+	for (uint32_t i = 0; i < swapChainImageCount; ++i)
+	{
+		VkCommandBufferBeginInfo commandBufferBeginInfo;
+		commandBufferBeginInfo.sType			= VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		commandBufferBeginInfo.flags			= VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+		commandBufferBeginInfo.pInheritanceInfo = nullptr;
+		commandBufferBeginInfo.pNext			= nullptr;
+
+		assert(vkBeginCommandBuffer(commandBuffers[i], &commandBufferBeginInfo) == VK_SUCCESS);
+
+		VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+		VkRenderPassBeginInfo renderPassBeginInfo	= {};
+		renderPassBeginInfo.sType					= VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassBeginInfo.renderPass				= renderPass;
+		renderPassBeginInfo.framebuffer				= swapChainFrameBuffers[i];
+		renderPassBeginInfo.pNext					= nullptr;
+		renderPassBeginInfo.renderArea.offset		= {0, 0};
+		renderPassBeginInfo.renderArea.extent		= currentExtent;
+		renderPassBeginInfo.clearValueCount			= 1;
+		renderPassBeginInfo.pClearValues			= &clearColor;
+
+		vkCmdBeginRenderPass(commandBuffers[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+		vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+
+		vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
+
+		vkCmdEndRenderPass(commandBuffers[i]);
+
+		assert(vkEndCommandBuffer(commandBuffers[i]) == VK_SUCCESS);
+	}
 
 	while (!glfwWindowShouldClose(window))
 	{
