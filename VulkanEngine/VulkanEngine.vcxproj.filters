@@ -21,6 +21,9 @@
     <ClInclude Include="VersionNumber.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="File.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -30,6 +33,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="VersionNumber.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="File.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
