@@ -5,7 +5,9 @@
 class VersionNumber
 {
 	/*
-		The Vulkan version number is used in several places in the API. In each such use, the API major version number, minor version number, and patch version number are packed into a 32-bit integer as follows:
+		The Vulkan version number is used in several places in the API. In each such use,
+		the API major version number, minor version number, and patch version number are
+		packed into a 32-bit integer as follows:
 
 			The major version number is a 10-bit integer packed into bits 31-22.
 			The minor version number is a 10-bit integer packed into bits 21-12.

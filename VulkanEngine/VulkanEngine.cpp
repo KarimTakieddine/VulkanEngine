@@ -520,10 +520,63 @@ int main()
 		assert(vkEndCommandBuffer(commandBuffers[i]) == VK_SUCCESS);
 	}
 
+	VkSemaphore imageAvailableSemaphore;
+	VkSemaphore renderCompleteSemaphore;
+
+	VkSemaphoreCreateInfo imageAvailableCreateInfo;
+	imageAvailableCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+	imageAvailableCreateInfo.flags = 0;
+	imageAvailableCreateInfo.pNext = nullptr;
+
+	VkSemaphoreCreateInfo renderCompleteCreateInfo;
+	renderCompleteCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+	renderCompleteCreateInfo.flags = 0;
+	renderCompleteCreateInfo.pNext = nullptr;
+
+	assert(vkCreateSemaphore(logicalDevice, &imageAvailableCreateInfo, nullptr, &imageAvailableSemaphore) == VK_SUCCESS && vkCreateSemaphore(logicalDevice, &renderCompleteCreateInfo, nullptr, &renderCompleteSemaphore) == VK_SUCCESS);
+
 	while (!glfwWindowShouldClose(window))
 	{
-		glfwSwapBuffers(window);
 		glfwPollEvents();
+
+		uint32_t imageIndex = 0;
+		vkAcquireNextImageKHR(logicalDevice, deviceSwapChain, std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+
+		VkSubmitInfo submitInfo = {};
+		submitInfo.sType		= VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+		VkSemaphore waitSemaphores[]		= { imageAvailableSemaphore };
+		VkPipelineStageFlags waitStages[]	= { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+		submitInfo.waitSemaphoreCount		= 1;
+		submitInfo.pWaitSemaphores			= waitSemaphores;
+		submitInfo.pWaitDstStageMask		= waitStages;
+
+		submitInfo.commandBufferCount	= 1;
+		submitInfo.pCommandBuffers		= &commandBuffers[imageIndex];
+
+		VkSemaphore signalSemaphores[]	= { renderCompleteSemaphore };
+		submitInfo.signalSemaphoreCount = 1;
+		submitInfo.pSignalSemaphores	= signalSemaphores;
+
+		if (vkQueueSubmit(presentationQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS) {
+			throw std::runtime_error("failed to submit draw command buffer!");
+		}
+
+		VkPresentInfoKHR presentInfo	= {};
+		presentInfo.sType				= VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+		presentInfo.waitSemaphoreCount	= 1;
+		presentInfo.pWaitSemaphores		= signalSemaphores;
+
+		VkSwapchainKHR swapChains[]		= { deviceSwapChain };
+		presentInfo.swapchainCount		= 1;
+		presentInfo.pSwapchains			= swapChains;
+
+		presentInfo.pImageIndices		= &imageIndex;
+
+		vkQueuePresentKHR(presentationQueue, &presentInfo);
+
+		vkQueueWaitIdle(presentationQueue);
 
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		{
@@ -538,6 +591,8 @@ int main()
 		vkDestroyFramebuffer(logicalDevice, swapChainFrameBuffers[i], nullptr);
 	}
 
+	vkDestroySemaphore(logicalDevice, renderCompleteSemaphore, nullptr);
+	vkDestroySemaphore(logicalDevice, imageAvailableSemaphore, nullptr);
 	vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
 	delete[](swapChainFrameBuffers);
 	vkDestroyPipelineLayout(logicalDevice, pipelineLayout, nullptr);
