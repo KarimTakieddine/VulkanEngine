@@ -345,6 +345,19 @@ int main()
 	colorBlendAttachmentState.dstAlphaBlendFactor	= VK_BLEND_FACTOR_ZERO;
 	colorBlendAttachmentState.alphaBlendOp			= VK_BLEND_OP_ADD;
 
+	VkPipelineColorBlendStateCreateInfo colorBlendStateCreateInfo	= {};
+	colorBlendStateCreateInfo.flags									= 0;
+	colorBlendStateCreateInfo.sType									= VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+	colorBlendStateCreateInfo.logicOpEnable							= VK_FALSE;
+	colorBlendStateCreateInfo.logicOp								= VK_LOGIC_OP_COPY;
+	colorBlendStateCreateInfo.attachmentCount						= 1;
+	colorBlendStateCreateInfo.pAttachments							= &colorBlendAttachmentState;
+	colorBlendStateCreateInfo.blendConstants[0]						= 0.0f;
+	colorBlendStateCreateInfo.blendConstants[1]						= 0.0f;
+	colorBlendStateCreateInfo.blendConstants[2]						= 0.0f;
+	colorBlendStateCreateInfo.blendConstants[3]						= 0.0f;
+	colorBlendStateCreateInfo.pNext									= nullptr;
+
 	VkDynamicState dynamicStates[] = {
 		VK_DYNAMIC_STATE_VIEWPORT,
 		VK_DYNAMIC_STATE_LINE_WIDTH
@@ -412,6 +425,68 @@ int main()
 	
 	assert(vkCreateRenderPass(logicalDevice, &renderPassCreateInfo, nullptr, &renderPass) == VK_SUCCESS);
 
+	VkPipeline graphicsPipeline;
+	VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo = {};
+	graphicsPipelineCreateInfo.sType				= VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+	graphicsPipelineCreateInfo.flags				= 0;
+	graphicsPipelineCreateInfo.stageCount			= 2;
+	graphicsPipelineCreateInfo.pStages				= shaderStages;
+	graphicsPipelineCreateInfo.layout				= pipelineLayout;
+	graphicsPipelineCreateInfo.renderPass			= renderPass;
+	graphicsPipelineCreateInfo.subpass				= 0;
+	graphicsPipelineCreateInfo.pVertexInputState	= &vertexInputStateInfo;
+	graphicsPipelineCreateInfo.pInputAssemblyState	= &inputAssemblyStateInfo;
+	graphicsPipelineCreateInfo.pTessellationState	= nullptr;
+	graphicsPipelineCreateInfo.pRasterizationState	= &rasterizationStateCreateInfo;
+	graphicsPipelineCreateInfo.pMultisampleState	= &multisampleStateCreateInfo;
+	graphicsPipelineCreateInfo.pViewportState		= &viewportStateCreateInfo;
+	graphicsPipelineCreateInfo.pDepthStencilState	= nullptr;
+	graphicsPipelineCreateInfo.pColorBlendState		= &colorBlendStateCreateInfo;
+	graphicsPipelineCreateInfo.pDynamicState		= nullptr;
+	graphicsPipelineCreateInfo.basePipelineHandle	= VK_NULL_HANDLE;
+	graphicsPipelineCreateInfo.basePipelineIndex	= -1;
+	graphicsPipelineCreateInfo.pNext				= nullptr;
+
+	assert(vkCreateGraphicsPipelines(logicalDevice, VK_NULL_HANDLE, 1, &graphicsPipelineCreateInfo, nullptr, &graphicsPipeline) == VK_SUCCESS);
+
+	VkFramebuffer * swapChainFrameBuffers = new VkFramebuffer[swapChainImageCount]();
+
+	for (int i = 0; i < swapChainImageCount; ++i)
+	{
+		VkFramebufferCreateInfo frameBufferCreateInfo;
+		frameBufferCreateInfo.sType				= VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+		frameBufferCreateInfo.flags				= 0;
+		frameBufferCreateInfo.attachmentCount	= 1;
+		frameBufferCreateInfo.pAttachments		= &swapChainImageViews[i];
+		frameBufferCreateInfo.width				= currentExtent.width;
+		frameBufferCreateInfo.height			= currentExtent.height;
+		frameBufferCreateInfo.layers			= 1;
+		frameBufferCreateInfo.renderPass		= renderPass;
+		frameBufferCreateInfo.pNext				= nullptr;
+
+		assert(vkCreateFramebuffer(logicalDevice, &frameBufferCreateInfo, nullptr, &swapChainFrameBuffers[i]) == VK_SUCCESS);
+	}
+
+	VkCommandPool commandPool;
+	VkCommandPoolCreateInfo commandPoolCreateInfo;
+	commandPoolCreateInfo.sType				= VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	commandPoolCreateInfo.flags				= 0;
+	commandPoolCreateInfo.queueFamilyIndex	= deviceQueueFamilyIndex;
+	commandPoolCreateInfo.pNext				= nullptr;
+
+	assert(vkCreateCommandPool(logicalDevice, &commandPoolCreateInfo, nullptr, &commandPool) == VK_SUCCESS);
+
+	VkCommandBuffer * commandBuffers = new VkCommandBuffer[swapChainImageCount]();
+
+	VkCommandBufferAllocateInfo commandBufferAllocateInfo;
+	commandBufferAllocateInfo.sType					= VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	commandBufferAllocateInfo.commandPool			= commandPool;
+	commandBufferAllocateInfo.level					= VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	commandBufferAllocateInfo.commandBufferCount	= 2;
+	commandBufferAllocateInfo.pNext					= nullptr;
+
+	assert(vkAllocateCommandBuffers(logicalDevice, &commandBufferAllocateInfo, commandBuffers) == VK_SUCCESS);
+
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwSwapBuffers(window);
@@ -425,6 +500,13 @@ int main()
 
 	vkDeviceWaitIdle(logicalDevice);
 
+	for (int i = 0; i < 2; ++i)
+	{
+		vkDestroyFramebuffer(logicalDevice, swapChainFrameBuffers[i], nullptr);
+	}
+
+	vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
+	delete[](swapChainFrameBuffers);
 	vkDestroyPipelineLayout(logicalDevice, pipelineLayout, nullptr);
 	vkDestroyRenderPass(logicalDevice, renderPass, nullptr);
 	delete[](swapChainImageViews);
