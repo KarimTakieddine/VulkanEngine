@@ -143,6 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DeviceQueue.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="PhysicalDeviceLoader.h" />
     <ClInclude Include="PhysicalDeviceRequirements.h" />
@@ -150,6 +151,7 @@
     <ClInclude Include="VersionNumber.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DeviceQueue.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="PhysicalDeviceLoader.cpp" />
     <ClCompile Include="stdafx.cpp">

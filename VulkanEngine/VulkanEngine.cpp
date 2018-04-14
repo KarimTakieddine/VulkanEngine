@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "File.h"
 #include "PhysicalDeviceLoader.h"
+#include "DeviceQueue.h"
 
 int main()
 {
@@ -57,25 +58,7 @@ int main()
 
 	VkPhysicalDevice & physicalDevice = physicalDeviceLoader.getDeviceAt(supportedDeviceIndex);
 
-	uint32_t deviceQueueFamilyCount = 0;
-	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &deviceQueueFamilyCount, nullptr);
-	assert(deviceQueueFamilyCount > 0);
-	VkQueueFamilyProperties * deviceQueueFamilyPropertiesList = new VkQueueFamilyProperties[deviceQueueFamilyCount];
-	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &deviceQueueFamilyCount, deviceQueueFamilyPropertiesList);
-
-	int deviceQueueFamilyIndex = -1;
-
-	for (uint32_t i = 0; i < deviceQueueFamilyCount; ++i)
-	{
-		VkQueueFamilyProperties const & deviceQueueFamilyProperties = deviceQueueFamilyPropertiesList[i];
-		int requiredFlags											= VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT;
-
-		if ((deviceQueueFamilyProperties.queueFlags & requiredFlags) == requiredFlags)
-		{
-			deviceQueueFamilyIndex = i;
-			break;
-		}
-	}
+	int deviceQueueFamilyIndex = DeviceQueue::getFamilyIndexMatching(1, VK_QUEUE_GRAPHICS_BIT|VK_QUEUE_TRANSFER_BIT, physicalDevice);
 
 	assert(deviceQueueFamilyIndex != -1);
 
@@ -112,8 +95,7 @@ int main()
 	VkDevice logicalDevice;
 	assert(vkCreateDevice(physicalDevice, &logicalDeviceCreateInfo, nullptr, &logicalDevice) == VK_SUCCESS);
 
-	VkQueue presentationQueue;
-	vkGetDeviceQueue(logicalDevice, deviceQueueFamilyIndex, 0, &presentationQueue);
+	DeviceQueue presentationQueue(deviceQueueFamilyIndex, 0, logicalDevice);
 
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
@@ -544,7 +526,7 @@ int main()
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores	= signalSemaphores;
 
-		if (vkQueueSubmit(presentationQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS) {
+		if (vkQueueSubmit(presentationQueue.handle(), 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS) {
 			throw std::runtime_error("failed to submit draw command buffer!");
 		}
 
@@ -560,9 +542,9 @@ int main()
 
 		presentInfo.pImageIndices		= &imageIndex;
 
-		vkQueuePresentKHR(presentationQueue, &presentInfo);
+		vkQueuePresentKHR(presentationQueue.handle(), &presentInfo);
 
-		vkQueueWaitIdle(presentationQueue);
+		vkQueueWaitIdle(presentationQueue.handle());
 
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		{
