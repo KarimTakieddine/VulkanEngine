@@ -26,6 +26,7 @@ m_handle			(VK_NULL_HANDLE)
 	bufferCreateInfo.sType					= VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 	bufferCreateInfo.flags					= 0;
 	bufferCreateInfo.pNext					= nullptr;
+	bufferCreateInfo.size					= size;
 	bufferCreateInfo.usage					= usageFlags;
 	bufferCreateInfo.sharingMode			= sharingMode;
 	bufferCreateInfo.queueFamilyIndexCount	= queueFamilyIndexList.size();

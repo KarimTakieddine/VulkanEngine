@@ -219,6 +219,8 @@ int main()
 
 	assert(vkCreateShaderModule(logicalDevice, &fragmentShaderCreateInfo, nullptr, &fragmentShaderModule) == VK_SUCCESS);
 
+	Buffer vertexBuffer(9 * sizeof(float), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE, QueueFamilyIndexList(1, deviceQueueFamilyIndex), logicalDevice);
+
 	VkPipelineShaderStageCreateInfo vertexShaderStageInfo;
 	vertexShaderStageInfo.sType					= VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	vertexShaderStageInfo.flags					= 0;
