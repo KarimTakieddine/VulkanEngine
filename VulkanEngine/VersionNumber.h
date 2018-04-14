@@ -2,7 +2,7 @@
 
 #include "stdafx.h"
 
-class VersionNumber
+struct VersionNumber
 {
 	/*
 		The Vulkan version number is used in several places in the API. In each such use,

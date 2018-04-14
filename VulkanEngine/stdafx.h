@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <exception>
 #include <iostream>
 #include <fstream>
 #include <vector>

@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 #include "File.h"
-#include "VersionNumber.h"
+#include "PhysicalDeviceLoader.h"
 
 int main()
 {
@@ -45,31 +45,17 @@ int main()
 
 	assert(vkCreateInstance(&instanceCreateInfo, nullptr, &vulkanInstance) == VK_SUCCESS);
 
-	uint32_t physicalDeviceCount = 0;
-	vkEnumeratePhysicalDevices(vulkanInstance, &physicalDeviceCount, nullptr);
-	
-	assert(physicalDeviceCount > 0);
+	PhysicalDeviceRequirements physicalDeviceRequirements;
+	physicalDeviceRequirements.apiVersionNumber		= apiVersionNumber;
+	physicalDeviceRequirements.driverVersionNumber	= VersionNumber(391, 140, 0);
+	PhysicalDeviceLoader physicalDeviceLoader(&vulkanInstance);
+	assert(physicalDeviceLoader.loadDevices() == VK_SUCCESS);
 
-	VkPhysicalDevice * physicalDevices = new VkPhysicalDevice[physicalDeviceCount];
-	assert(vkEnumeratePhysicalDevices(vulkanInstance, &physicalDeviceCount, physicalDevices) == VK_SUCCESS);
-	int supportedDeviceIndex = -1;
-
-	for (uint32_t i = 0; i < physicalDeviceCount; ++i)
-	{
-		VkPhysicalDeviceProperties deviceProperties;
-		vkGetPhysicalDeviceProperties(physicalDevices[i], &deviceProperties);
-		VersionNumber deviceAPIVersionNumber = VersionNumber::fromInteger(deviceProperties.apiVersion);
-
-		if (deviceAPIVersionNumber == apiVersionNumber)
-		{
-			supportedDeviceIndex = i;
-			break;
-		}
-	}
+	int supportedDeviceIndex = physicalDeviceLoader.getIndexMatching(physicalDeviceRequirements);
 
 	assert(supportedDeviceIndex != -1);
 
-	VkPhysicalDevice & physicalDevice = physicalDevices[supportedDeviceIndex];
+	VkPhysicalDevice & physicalDevice = physicalDeviceLoader.getDeviceAt(supportedDeviceIndex);
 
 	uint32_t deviceQueueFamilyCount = 0;
 	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &deviceQueueFamilyCount, nullptr);
@@ -602,7 +588,7 @@ int main()
 	vkDestroySwapchainKHR(logicalDevice, deviceSwapChain, nullptr);
 	delete[](deviceSupportedSurfaceFormats);
 	vkDestroyDevice(logicalDevice, nullptr);
-	delete[](physicalDevices);
+	//delete[](physicalDevices);
 	vkDestroyInstance(vulkanInstance, nullptr);
 	glfwDestroyWindow(window);
 	glfwTerminate();
