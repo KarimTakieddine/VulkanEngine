@@ -10,7 +10,7 @@ public:
 
 	PhysicalDeviceLoader();
 
-	PhysicalDeviceLoader(VkInstance const * applicationInstance);
+	PhysicalDeviceLoader(VkInstance applicationInstance);
 
 	PhysicalDeviceLoader(PhysicalDeviceLoader const & other);
 
@@ -26,6 +26,6 @@ public:
 
 private:
 
-	PhysicalDeviceList m_data;
-	VkInstance const * m_applicationInstance;
+	PhysicalDeviceList	m_data;
+	VkInstance			m_applicationInstance;
 };

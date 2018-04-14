@@ -4,12 +4,12 @@
 PhysicalDeviceLoader::PhysicalDeviceLoader()
 :
 m_data(),
-m_applicationInstance(nullptr)
+m_applicationInstance(VK_NULL_HANDLE)
 {}
 
 PhysicalDeviceLoader::PhysicalDeviceLoader
 (
-	VkInstance const * applicationInstance
+	VkInstance applicationInstance
 )
 :
 m_data(),
@@ -27,14 +27,13 @@ m_applicationInstance(other.m_applicationInstance)
 
 VkResult PhysicalDeviceLoader::loadDevices()
 {
-	if (!m_applicationInstance)
+	if (m_applicationInstance == VK_NULL_HANDLE)
 	{
 		return VK_ERROR_INITIALIZATION_FAILED;
 	}
 
-	VkInstance const & applicationInstance	= *m_applicationInstance;
-	uint32_t deviceCount					= 0;
-	VkResult enumerationStatus				= vkEnumeratePhysicalDevices(applicationInstance, &deviceCount, nullptr);
+	uint32_t deviceCount		= 0;
+	VkResult enumerationStatus	= vkEnumeratePhysicalDevices(m_applicationInstance, &deviceCount, nullptr);
 
 	if (deviceCount == 0)
 	{
@@ -43,7 +42,7 @@ VkResult PhysicalDeviceLoader::loadDevices()
 
 	m_data.resize(deviceCount);
 
-	return vkEnumeratePhysicalDevices(applicationInstance, &deviceCount, &m_data[0]);
+	return vkEnumeratePhysicalDevices(m_applicationInstance, &deviceCount, &m_data[0]);
 }
 
 uint32_t PhysicalDeviceLoader::getDeviceCount() const

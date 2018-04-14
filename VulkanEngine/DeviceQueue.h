@@ -42,7 +42,7 @@ public:
 
 	bool isValid() const;
 
-	VkQueue & handle();
+	VkQueue getHandle() const;
 
 private:
 

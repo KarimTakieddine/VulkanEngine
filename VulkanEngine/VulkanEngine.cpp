@@ -2,9 +2,10 @@
 //
 
 #include "stdafx.h"
+#include "Buffer.h"
+#include "DeviceQueue.h"
 #include "File.h"
 #include "PhysicalDeviceLoader.h"
-#include "DeviceQueue.h"
 
 int main()
 {
@@ -49,7 +50,7 @@ int main()
 	PhysicalDeviceRequirements physicalDeviceRequirements;
 	physicalDeviceRequirements.apiVersionNumber		= apiVersionNumber;
 	physicalDeviceRequirements.driverVersionNumber	= VersionNumber(391, 140, 0);
-	PhysicalDeviceLoader physicalDeviceLoader(&vulkanInstance);
+	PhysicalDeviceLoader physicalDeviceLoader(vulkanInstance);
 	assert(physicalDeviceLoader.loadDevices() == VK_SUCCESS);
 
 	int supportedDeviceIndex = physicalDeviceLoader.getIndexMatching(physicalDeviceRequirements);
@@ -526,7 +527,7 @@ int main()
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores	= signalSemaphores;
 
-		if (vkQueueSubmit(presentationQueue.handle(), 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS) {
+		if (vkQueueSubmit(presentationQueue.getHandle(), 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS) {
 			throw std::runtime_error("failed to submit draw command buffer!");
 		}
 
@@ -542,9 +543,9 @@ int main()
 
 		presentInfo.pImageIndices		= &imageIndex;
 
-		vkQueuePresentKHR(presentationQueue.handle(), &presentInfo);
+		vkQueuePresentKHR(presentationQueue.getHandle(), &presentInfo);
 
-		vkQueueWaitIdle(presentationQueue.handle());
+		vkQueueWaitIdle(presentationQueue.getHandle());
 
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		{

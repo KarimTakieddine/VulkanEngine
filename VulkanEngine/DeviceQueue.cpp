@@ -65,7 +65,7 @@ bool DeviceQueue::isValid() const
 	return m_handle != VK_NULL_HANDLE;
 }
 
-VkQueue & DeviceQueue::handle()
+VkQueue DeviceQueue::getHandle() const
 {
 	return m_handle;
 }
