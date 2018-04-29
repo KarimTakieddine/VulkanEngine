@@ -219,7 +219,7 @@ int main()
 
 	assert(vkCreateShaderModule(logicalDevice, &fragmentShaderCreateInfo, nullptr, &fragmentShaderModule) == VK_SUCCESS);
 
-	Buffer vertexBuffer(9 * sizeof(float), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE, QueueFamilyIndexList(1, deviceQueueFamilyIndex), logicalDevice);
+	Buffer * vertexBuffer = new Buffer(9 * sizeof(float), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE, QueueFamilyIndexList(1, deviceQueueFamilyIndex), logicalDevice);
 
 	VkPipelineShaderStageCreateInfo vertexShaderStageInfo;
 	vertexShaderStageInfo.sType					= VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -561,6 +561,8 @@ int main()
 	{
 		vkDestroyFramebuffer(logicalDevice, swapChainFrameBuffers[i], nullptr);
 	}
+
+	delete(vertexBuffer);
 
 	vkDestroySemaphore(logicalDevice, renderCompleteSemaphore, nullptr);
 	vkDestroySemaphore(logicalDevice, imageAvailableSemaphore, nullptr);
