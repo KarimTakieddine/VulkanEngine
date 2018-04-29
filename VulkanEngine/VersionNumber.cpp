@@ -53,3 +53,23 @@ bool VersionNumber::operator!=(VersionNumber const & other)
 {
 	return !(*this == other);
 }
+
+bool VersionNumber::operator>(VersionNumber const & other)
+{
+	return toInteger() > other.toInteger();
+}
+
+bool VersionNumber::operator>=(VersionNumber const & other)
+{
+	return toInteger() >= other.toInteger();
+}
+
+bool VersionNumber::operator<(VersionNumber const & other)
+{
+	return toInteger() < other.toInteger();
+}
+
+bool VersionNumber::operator<=(VersionNumber const & other)
+{
+	return toInteger() <= other.toInteger();
+}

@@ -74,8 +74,8 @@ int PhysicalDeviceLoader::getIndexMatching
 		VersionNumber deviceDriverVersionNumber	= VersionNumber::fromInteger(deviceProperties.driverVersion);
 
 		if (
-			deviceAPIVersionNumber == requirements.apiVersionNumber &&
-			deviceDriverVersionNumber == requirements.driverVersionNumber
+			deviceAPIVersionNumber		>= requirements.apiVersionNumber &&
+			deviceDriverVersionNumber	>= requirements.driverVersionNumber
 		)
 		{
 			return i;
