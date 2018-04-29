@@ -28,6 +28,21 @@ public:
 
 	VkMemoryRequirements const & getMemoryRequirements() const;
 
+	bool getMemoryTypeIndex
+	(
+		VkPhysicalDevice physicalDevice,
+		VkMemoryPropertyFlags requiredFlags,
+		uint32_t * outIndex
+	) const;
+
+	bool allocate(VkPhysicalDevice physicalDevice);
+
+	bool fill
+	(
+		void * hostData,
+		VkDeviceSize offset
+	);
+
 	~Buffer();
 
 private:
@@ -36,6 +51,8 @@ private:
 
 	VkMemoryRequirements	m_memoryRequirements;
 	VkDevice				m_logicalDevice;
+	VkDeviceMemory			m_deviceMemory;
+	VkDeviceSize			m_byteSize;
 	VkBuffer				m_handle;
 	VkResult				m_createStatus;
 };
