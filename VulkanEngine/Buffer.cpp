@@ -54,6 +54,11 @@ VkBuffer Buffer::getHandle() const
 	return m_handle;
 }
 
+VkDeviceMemory Buffer::getMemoryHandle() const
+{
+	return m_deviceMemory;
+}
+
 VkMemoryRequirements const & Buffer::getMemoryRequirements() const
 {
 	return m_memoryRequirements;

@@ -26,6 +26,8 @@ public:
 
 	VkBuffer getHandle() const;
 
+	VkDeviceMemory getMemoryHandle() const;
+
 	VkMemoryRequirements const & getMemoryRequirements() const;
 
 	bool getMemoryTypeIndex

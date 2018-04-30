@@ -6,6 +6,7 @@
 #include "DeviceQueue.h"
 #include "File.h"
 #include "PhysicalDeviceLoader.h"
+#include "Vertex.h"
 
 int main()
 {
@@ -219,8 +220,17 @@ int main()
 
 	assert(vkCreateShaderModule(logicalDevice, &fragmentShaderCreateInfo, nullptr, &fragmentShaderModule) == VK_SUCCESS);
 
-	Buffer * vertexBuffer = new Buffer(9 * sizeof(float), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE, QueueFamilyIndexList(1, deviceQueueFamilyIndex), logicalDevice);
+	Vertex vertexData[3] =
+	{
+		Vertex(Vector3(0.0f, -0.5f), Vector3(1.0f, 0.0f, 0.0f)),
+		Vertex(Vector3(0.5f, 0.5f), Vector3(0.0f, 1.0f, 0.0f)),
+		Vertex(Vector3(-0.5f, 0.5f), Vector3(0.0f, 0.0f, 1.0f))
+	};
+
+	Buffer * vertexBuffer = new Buffer(3 * sizeof(Vertex), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE, QueueFamilyIndexList(1, deviceQueueFamilyIndex), logicalDevice);
 	assert(vertexBuffer->allocate(physicalDevice));
+	assert(vertexBuffer->fill(reinterpret_cast<void *>(vertexData), 0));
+	vkBindBufferMemory(logicalDevice, vertexBuffer->getHandle(), vertexBuffer->getMemoryHandle(), 0);
 
 	VkPipelineShaderStageCreateInfo vertexShaderStageInfo;
 	vertexShaderStageInfo.sType					= VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -242,13 +252,39 @@ int main()
 
 	VkPipelineShaderStageCreateInfo shaderStages[2] = { vertexShaderStageInfo, fragmentShaderStageInfo };
 
+	VkVertexInputBindingDescription vertexInputBindingDescription;
+
+	vertexInputBindingDescription.binding	= 0;
+	vertexInputBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+	vertexInputBindingDescription.stride	= sizeof(Vertex);
+
+	VkVertexInputAttributeDescription positionInputAttributeDescription;
+
+	positionInputAttributeDescription.binding	= 0;
+	positionInputAttributeDescription.format	= VK_FORMAT_R32G32B32_SFLOAT;
+	positionInputAttributeDescription.location	= 0;
+	positionInputAttributeDescription.offset	= 0;
+
+	VkVertexInputAttributeDescription colorInputAttributeDescription;
+
+	colorInputAttributeDescription.binding	= 0;
+	colorInputAttributeDescription.format	= VK_FORMAT_R32G32B32_SFLOAT;
+	colorInputAttributeDescription.location	= 1;
+	colorInputAttributeDescription.offset	= sizeof(Vector3);
+
+	VkVertexInputAttributeDescription vertexInputAttributeDescriptions[2] =
+	{
+		positionInputAttributeDescription,
+		colorInputAttributeDescription
+	};
+
 	VkPipelineVertexInputStateCreateInfo vertexInputStateInfo;
 	vertexInputStateInfo.sType								= VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 	vertexInputStateInfo.flags								= 0;
-	vertexInputStateInfo.vertexBindingDescriptionCount		= 0;
-	vertexInputStateInfo.pVertexBindingDescriptions			= nullptr; // Optional
-	vertexInputStateInfo.vertexAttributeDescriptionCount	= 0;
-	vertexInputStateInfo.pVertexAttributeDescriptions		= nullptr;
+	vertexInputStateInfo.vertexBindingDescriptionCount		= 1;
+	vertexInputStateInfo.pVertexBindingDescriptions			= &vertexInputBindingDescription;
+	vertexInputStateInfo.vertexAttributeDescriptionCount	= 2;
+	vertexInputStateInfo.pVertexAttributeDescriptions		= vertexInputAttributeDescriptions;
 	vertexInputStateInfo.pNext								= nullptr;
 
 	VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateInfo;
@@ -484,6 +520,10 @@ int main()
 		vkCmdBeginRenderPass(commandBuffers[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 		vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+
+		VkBuffer vertexBuffers[] = { vertexBuffer->getHandle() };
+		VkDeviceSize offsets[] = { 0 };
+		vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
 
 		vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
 
