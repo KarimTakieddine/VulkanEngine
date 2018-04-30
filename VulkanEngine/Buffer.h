@@ -52,9 +52,9 @@ private:
 	Buffer(Buffer const & other);
 
 	VkMemoryRequirements	m_memoryRequirements;
-	VkDevice				m_logicalDevice;
 	VkDeviceMemory			m_deviceMemory;
 	VkDeviceSize			m_byteSize;
 	VkBuffer				m_handle;
+	VkDevice				m_logicalDevice;
 	VkResult				m_createStatus;
 };
