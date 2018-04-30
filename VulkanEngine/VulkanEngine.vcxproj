@@ -23,7 +23,7 @@
     <ProjectGuid>{F0F1B1E1-90E3-41A6-9BBC-85D9D4FFB75B}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>VulkanEngine</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -102,11 +102,11 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)\..\..\..\VulkanSDK\1.0.68.0\Include;$(ProjectDir)\..\..\..\glfw-3.2.1.bin.WIN64\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\..\..\VulkanSDK\1.1.73.0\Include;$(ProjectDir)\..\..\..\glfw-3.2.1.bin.WIN64\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>$(ProjectDir)\..\..\..\VulkanSDK\1.0.68.0\Lib;$(ProjectDir)\..\..\..\glfw-3.2.1.bin.WIN64\lib-vc2015</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)\..\..\..\VulkanSDK\1.1.73.0\Lib;$(ProjectDir)\..\..\..\glfw-3.2.1.bin.WIN64\lib-vc2015</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -157,6 +157,8 @@
     <ClInclude Include="PhysicalDeviceLoader.h" />
     <ClInclude Include="PhysicalDeviceRequirements.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Vector2.h" />
+    <ClInclude Include="Vector3.h" />
     <ClInclude Include="VersionNumber.h" />
   </ItemGroup>
   <ItemGroup>
@@ -170,6 +172,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Vector2.cpp" />
+    <ClCompile Include="Vector3.cpp" />
     <ClCompile Include="VersionNumber.cpp" />
     <ClCompile Include="VulkanEngine.cpp" />
   </ItemGroup>
