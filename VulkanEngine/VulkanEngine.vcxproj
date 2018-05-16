@@ -155,6 +155,7 @@
     <ClInclude Include="DeviceQueue.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="Matrix2.h" />
+    <ClInclude Include="Matrix3.h" />
     <ClInclude Include="PhysicalDeviceLoader.h" />
     <ClInclude Include="PhysicalDeviceRequirements.h" />
     <ClInclude Include="stdafx.h" />
@@ -167,6 +168,8 @@
     <ClCompile Include="Buffer.cpp" />
     <ClCompile Include="DeviceQueue.cpp" />
     <ClCompile Include="File.cpp" />
+    <ClCompile Include="Matrix2.cpp" />
+    <ClCompile Include="Matrix3.cpp" />
     <ClCompile Include="PhysicalDeviceLoader.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
