@@ -90,12 +90,16 @@ bool Buffer::getMemoryTypeIndex
 	return false;
 }
 
-bool Buffer::allocate(VkPhysicalDevice physicalDevice)
+bool Buffer::allocate
+(
+	VkPhysicalDevice physicalDevice,
+	VkMemoryPropertyFlags memoryPropertyFlags
+)
 {
 	VkMemoryAllocateInfo memoryAllocateInfo;
 	uint32_t memoryTypeIndex;
 
-	if (!getMemoryTypeIndex(physicalDevice, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &memoryTypeIndex))
+	if (!getMemoryTypeIndex(physicalDevice, memoryPropertyFlags, &memoryTypeIndex))
 	{
 		return false;
 	}

@@ -228,7 +228,7 @@ int main()
 	};
 
 	Buffer * vertexBuffer = new Buffer(3 * sizeof(Vertex), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE, QueueFamilyIndexList(1, deviceQueueFamilyIndex), logicalDevice);
-	assert(vertexBuffer->allocate(physicalDevice));
+	assert(vertexBuffer->allocate(physicalDevice, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));
 	assert(vertexBuffer->fill(reinterpret_cast<void *>(vertexData), 0));
 	vkBindBufferMemory(logicalDevice, vertexBuffer->getHandle(), vertexBuffer->getMemoryHandle(), 0);
 

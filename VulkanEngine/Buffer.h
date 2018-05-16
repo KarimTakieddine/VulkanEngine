@@ -37,7 +37,11 @@ public:
 		uint32_t * outIndex
 	) const;
 
-	bool allocate(VkPhysicalDevice physicalDevice);
+	bool allocate
+	(
+		VkPhysicalDevice physicalDevice,
+		VkMemoryPropertyFlags memoryPropertyFlags
+	);
 
 	bool fill
 	(
