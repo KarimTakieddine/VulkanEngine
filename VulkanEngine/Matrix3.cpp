@@ -72,7 +72,7 @@ Matrix3 & Matrix3::operator=
 	Matrix3 const & other
 )
 {
-	Vector3 const * otherData	= otherData;
+	Vector3 const * otherData	= other.data;
 	data[0]						= otherData[0];
 	data[1]						= otherData[1];
 	data[2]						= otherData[2];
