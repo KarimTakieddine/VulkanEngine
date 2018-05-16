@@ -60,3 +60,15 @@ x(other.x),
 y(other.y),
 z(other.z)
 {}
+
+Vector3 & Vector3::operator=
+(
+	Vector3 const & other
+)
+{
+	x = other.x;
+	y = other.y;
+	z = other.z;
+	
+	return *this;
+}

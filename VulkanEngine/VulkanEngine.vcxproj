@@ -154,6 +154,7 @@
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="DeviceQueue.h" />
     <ClInclude Include="File.h" />
+    <ClInclude Include="Matrix2.h" />
     <ClInclude Include="PhysicalDeviceLoader.h" />
     <ClInclude Include="PhysicalDeviceRequirements.h" />
     <ClInclude Include="stdafx.h" />
