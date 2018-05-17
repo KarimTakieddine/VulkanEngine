@@ -8,6 +8,7 @@
 #include "PhysicalDeviceLoader.h"
 #include "Vertex.h"
 #include "MatrixTransform.h"
+#include "SceneUniform.h"
 
 int main()
 {
@@ -196,7 +197,7 @@ int main()
 	}
 
 	CharacterBuffer vertexShaderBuffer;
-	assert(File::read("Shaders\\SPIR-V\\vertex.spv", &vertexShaderBuffer));
+	assert(File::read("Shaders\\SPIR-V\\vert.spv", &vertexShaderBuffer));
 
 	VkShaderModule vertexShaderModule;
 	VkShaderModuleCreateInfo vertexShaderCreateInfo;
@@ -209,7 +210,7 @@ int main()
 	assert(vkCreateShaderModule(logicalDevice, &vertexShaderCreateInfo, nullptr, &vertexShaderModule) == VK_SUCCESS);
 
 	CharacterBuffer fragmentShaderBuffer;
-	assert(File::read("Shaders\\SPIR-V\\fragment.spv", &fragmentShaderBuffer));
+	assert(File::read("Shaders\\SPIR-V\\frag.spv", &fragmentShaderBuffer));
 
 	VkShaderModule fragmentShaderModule;
 	VkShaderModuleCreateInfo fragmentShaderCreateInfo;
@@ -221,17 +222,52 @@ int main()
 
 	assert(vkCreateShaderModule(logicalDevice, &fragmentShaderCreateInfo, nullptr, &fragmentShaderModule) == VK_SUCCESS);
 
-	Vertex vertexData[3] =
-	{
-		Vertex(Vector3(0.0f, -0.5f), Vector3(1.0f, 0.0f, 0.0f)),
-		Vertex(Vector3(0.5f, 0.5f), Vector3(0.0f, 1.0f, 0.0f)),
-		Vertex(Vector3(-0.5f, 0.5f), Vector3(0.0f, 0.0f, 1.0f))
+	const std::vector<Vertex> vertices = {
+		{ { -0.5f, -0.5f },{ 1.0f, 0.0f, 0.0f } },
+	{ { 0.5f, -0.5f },{ 0.0f, 1.0f, 0.0f } },
+	{ { 0.5f, 0.5f },{ 0.0f, 0.0f, 1.0f } },
+	{ { -0.5f, 0.5f },{ 1.0f, 1.0f, 1.0f } }
 	};
 
-	Buffer * vertexBuffer = new Buffer(3 * sizeof(Vertex), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE, QueueFamilyIndexList(1, deviceQueueFamilyIndex), logicalDevice);
+	const std::vector<uint16_t> indices = {
+		0, 1, 2, 2, 3, 0
+	};
+
+	Vertex vertexData[4] =
+	{
+		Vertex(Vector3(-0.5f, 0.5f, 0.0f), Vector3(1.0f, 0.0f, 0.0f)),
+		Vertex(Vector3(0.5f, 0.5f, 0.0f), Vector3(0.0f, 1.0f, 0.0f)),
+		Vertex(Vector3(0.5f, -0.5f, 0.0f), Vector3(0.0f, 0.0f, 1.0f)),
+		Vertex(Vector3(-0.5f, -0.5f, 0.0f), Vector3(0.0f, 0.0f, 1.0f)),
+	};
+
+	Buffer * vertexBuffer = new Buffer(4 * sizeof(Vertex), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE, QueueFamilyIndexList(1, deviceQueueFamilyIndex), logicalDevice);
 	assert(vertexBuffer->allocate(physicalDevice, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));
 	assert(vertexBuffer->fill(reinterpret_cast<void *>(vertexData), 0));
 	vkBindBufferMemory(logicalDevice, vertexBuffer->getHandle(), vertexBuffer->getMemoryHandle(), 0);
+
+	uint16_t indexData[6] =
+	{
+		0, 1, 2,
+		0, 2, 3
+	};
+
+	Buffer * indexBuffer = new Buffer(6 * sizeof(uint16_t), VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE, QueueFamilyIndexList(1, deviceQueueFamilyIndex), logicalDevice);
+	assert(indexBuffer->allocate(physicalDevice, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));
+	assert(indexBuffer->fill(reinterpret_cast<void *>(indexData), 0));
+	vkBindBufferMemory(logicalDevice, indexBuffer->getHandle(), indexBuffer->getMemoryHandle(), 0);
+
+	SceneUniform sceneUniform
+	(
+		MatrixTransform::identityMatrix4(),
+		MatrixTransform::identityMatrix4(),
+		MatrixTransform::identityMatrix4()
+	);
+
+	Buffer * sceneUniformBuffer = new Buffer(sizeof(SceneUniform), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE, QueueFamilyIndexList(1, deviceQueueFamilyIndex), logicalDevice);
+	assert(sceneUniformBuffer->allocate(physicalDevice, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));
+	assert(sceneUniformBuffer->fill(reinterpret_cast<void *>(&sceneUniform), 0));
+	vkBindBufferMemory(logicalDevice, sceneUniformBuffer->getHandle(), sceneUniformBuffer->getMemoryHandle(), 0);
 
 	VkPipelineShaderStageCreateInfo vertexShaderStageInfo;
 	vertexShaderStageInfo.sType					= VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -325,7 +361,7 @@ int main()
 	rasterizationStateCreateInfo.depthClampEnable			= VK_FALSE;
 	rasterizationStateCreateInfo.polygonMode				= VK_POLYGON_MODE_FILL;
 	rasterizationStateCreateInfo.cullMode					= VK_CULL_MODE_BACK_BIT;
-	rasterizationStateCreateInfo.frontFace					= VK_FRONT_FACE_CLOCKWISE;
+	rasterizationStateCreateInfo.frontFace					= VK_FRONT_FACE_COUNTER_CLOCKWISE;
 	rasterizationStateCreateInfo.lineWidth					= 1.0f;
 	rasterizationStateCreateInfo.depthBiasEnable			= VK_FALSE;
 	rasterizationStateCreateInfo.depthBiasConstantFactor	= 0.0f;
@@ -379,13 +415,77 @@ int main()
 	dynamicStateCreateInfo.pDynamicStates		= dynamicStates;
 	dynamicStateCreateInfo.pNext				= nullptr;
 
+	VkDescriptorSetLayoutBinding descriptorSetLayoutBinding;
+
+	descriptorSetLayoutBinding.binding				= 0;
+	descriptorSetLayoutBinding.descriptorCount		= 1;
+	descriptorSetLayoutBinding.descriptorType		= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	descriptorSetLayoutBinding.stageFlags			= VK_SHADER_STAGE_VERTEX_BIT;
+	descriptorSetLayoutBinding.pImmutableSamplers	= nullptr;
+
+	VkDescriptorSetLayout descriptorSetLayout;
+	VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo;
+
+	descriptorSetLayoutCreateInfo.sType			= VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	descriptorSetLayoutCreateInfo.flags			= 0;
+	descriptorSetLayoutCreateInfo.bindingCount	= 1;
+	descriptorSetLayoutCreateInfo.pBindings		= &descriptorSetLayoutBinding;
+	descriptorSetLayoutCreateInfo.pNext			= nullptr;
+
+	assert(vkCreateDescriptorSetLayout(logicalDevice, &descriptorSetLayoutCreateInfo, nullptr, &descriptorSetLayout) == VK_SUCCESS);
+
+	VkDescriptorPoolSize descriptorPoolSize;
+	descriptorPoolSize.type				= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	descriptorPoolSize.descriptorCount	= 1;
+
+	VkDescriptorPool descriptorPool;
+	VkDescriptorPoolCreateInfo descriptorPoolCreateInfo;
+	descriptorPoolCreateInfo.sType			= VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	descriptorPoolCreateInfo.flags			= 0;
+	descriptorPoolCreateInfo.maxSets		= 1;
+	descriptorPoolCreateInfo.poolSizeCount	= 1;
+	descriptorPoolCreateInfo.pPoolSizes		= &descriptorPoolSize;
+	descriptorPoolCreateInfo.pNext			= nullptr;
+
+	assert(vkCreateDescriptorPool(logicalDevice, &descriptorPoolCreateInfo, nullptr, &descriptorPool) == VK_SUCCESS);
+
+	VkDescriptorSet descriptorSet;
+	VkDescriptorSetAllocateInfo descriptorSetAllocateInfo;
+	VkDescriptorSetLayout layouts[] = { descriptorSetLayout };
+	descriptorSetAllocateInfo.sType					= VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	descriptorSetAllocateInfo.descriptorPool		= descriptorPool;
+	descriptorSetAllocateInfo.descriptorSetCount	= 1;
+	descriptorSetAllocateInfo.pSetLayouts			= &descriptorSetLayout;
+	descriptorSetAllocateInfo.pNext					= nullptr;
+
+	assert(vkAllocateDescriptorSets(logicalDevice, &descriptorSetAllocateInfo, &descriptorSet) == VK_SUCCESS);
+
+	VkDescriptorBufferInfo descriptorBufferInfo;
+	descriptorBufferInfo.buffer	= sceneUniformBuffer->getHandle();
+	descriptorBufferInfo.offset	= 0;
+	descriptorBufferInfo.range	= sizeof(SceneUniform);
+
+	VkWriteDescriptorSet writeDescriptorSet;
+	writeDescriptorSet.sType			= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	writeDescriptorSet.dstSet			= descriptorSet;
+	writeDescriptorSet.dstBinding		= 0;
+	writeDescriptorSet.dstArrayElement	= 0;
+	writeDescriptorSet.descriptorCount	= 1;
+	writeDescriptorSet.descriptorType	= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	writeDescriptorSet.pBufferInfo		= &descriptorBufferInfo;
+	writeDescriptorSet.pImageInfo		= nullptr;
+	writeDescriptorSet.pTexelBufferView = nullptr;
+	writeDescriptorSet.pNext			= nullptr;
+
+	vkUpdateDescriptorSets(logicalDevice, 1, &writeDescriptorSet, 0, nullptr);
+
 	VkPipelineLayout pipelineLayout;
 
 	VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo;
 	pipelineLayoutCreateInfo.sType					= VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pipelineLayoutCreateInfo.flags					= 0;
-	pipelineLayoutCreateInfo.setLayoutCount			= 0;
-	pipelineLayoutCreateInfo.pSetLayouts			= nullptr;
+	pipelineLayoutCreateInfo.setLayoutCount			= 1;
+	pipelineLayoutCreateInfo.pSetLayouts			= &descriptorSetLayout;
 	pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
 	pipelineLayoutCreateInfo.pPushConstantRanges	= 0;
 	pipelineLayoutCreateInfo.pNext					= nullptr;
@@ -525,8 +625,11 @@ int main()
 		VkBuffer vertexBuffers[] = { vertexBuffer->getHandle() };
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
+		vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer->getHandle(), 0, VK_INDEX_TYPE_UINT16);
 
-		vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
+		vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
+
+		vkCmdDrawIndexed(commandBuffers[i], 6, 1, 0, 0, 0);
 
 		vkCmdEndRenderPass(commandBuffers[i]);
 
@@ -604,6 +707,9 @@ int main()
 		vkDestroyFramebuffer(logicalDevice, swapChainFrameBuffers[i], nullptr);
 	}
 
+	vkDestroyDescriptorSetLayout(logicalDevice, descriptorSetLayout, nullptr);
+	vkDestroyDescriptorPool(logicalDevice, descriptorPool, nullptr);
+	delete(sceneUniformBuffer);
 	delete(vertexBuffer);
 	vkDestroySemaphore(logicalDevice, renderCompleteSemaphore, nullptr);
 	vkDestroySemaphore(logicalDevice, imageAvailableSemaphore, nullptr);
@@ -616,7 +722,6 @@ int main()
 	vkDestroySwapchainKHR(logicalDevice, deviceSwapChain, nullptr);
 	delete[](deviceSupportedSurfaceFormats);
 	vkDestroyDevice(logicalDevice, nullptr);
-	//delete[](physicalDevices);
 	vkDestroyInstance(vulkanInstance, nullptr);
 	glfwDestroyWindow(window);
 	glfwTerminate();

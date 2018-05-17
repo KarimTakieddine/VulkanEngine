@@ -142,7 +142,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_USE_MATH_DEFINES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_USE_MATH_DEFINES;GLM_FORCE_RADIANS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -160,6 +160,7 @@
     <ClInclude Include="MatrixTransform.h" />
     <ClInclude Include="PhysicalDeviceLoader.h" />
     <ClInclude Include="PhysicalDeviceRequirements.h" />
+    <ClInclude Include="SceneUniform.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Vector2.h" />
     <ClInclude Include="Vector3.h" />
@@ -177,6 +178,7 @@
     <ClCompile Include="Matrix4.cpp" />
     <ClCompile Include="MatrixTransform.cpp" />
     <ClCompile Include="PhysicalDeviceLoader.cpp" />
+    <ClCompile Include="SceneUniform.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
