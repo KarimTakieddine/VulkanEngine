@@ -45,3 +45,11 @@ Vector2 & Vector2::operator=
 	
 	return *this;
 }
+
+Vector2 Vector2::operator*
+(
+	float scalar
+) const
+{
+	return Vector2(scalar * x, scalar * y);
+}

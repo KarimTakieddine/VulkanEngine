@@ -6,6 +6,7 @@
 #pragma once
 
 #include <algorithm>
+#include <cmath>
 #include <exception>
 #include <iostream>
 #include <fstream>

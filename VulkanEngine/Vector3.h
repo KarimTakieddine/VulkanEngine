@@ -40,4 +40,9 @@ struct Vector3
 	(
 		Vector3 const & other
 	);
+
+	Vector3 operator*
+	(
+		float scalar
+	) const;
 };

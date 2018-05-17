@@ -53,4 +53,9 @@ struct Vector4
 	(
 		Vector4 const & other
 	);
+
+	Vector4 operator*
+	(
+		float scalar
+	) const;
 };

@@ -4,6 +4,36 @@
 
 class VectorTransform
 {
+	static float magnitude
+	(
+		Vector2 const & v
+	);
+
+	static float magnitude
+	(
+		Vector3 const & v
+	);
+
+	static float magnitude
+	(
+		Vector4 const & v
+	);
+
+	static Vector2 normalized
+	(
+		Vector2 const & v
+	);
+
+	static Vector3 normalized
+	(
+		Vector3 const & v
+	);
+
+	static Vector4 normalized
+	(
+		Vector4 const & v
+	);
+
 	static float dot
 	(
 		Vector2 const & a,

@@ -104,3 +104,11 @@ Vector4 & Vector4::operator=
 
 	return *this;
 }
+
+Vector4 Vector4::operator*
+(
+	float scalar
+) const
+{
+	return Vector4(scalar * x, scalar * y, scalar * z, scalar * w);
+}

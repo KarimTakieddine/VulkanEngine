@@ -1,6 +1,66 @@
 #include "stdafx.h"
 #include "VectorTransform.h"
 
+float VectorTransform::magnitude
+(
+	Vector2 const & v
+)
+{
+	float x = v.x;
+	float y = v.y;
+
+	return std::sqrtf((x * x) + (y * y));
+}
+
+float VectorTransform::magnitude
+(
+	Vector3 const & v
+)
+{
+	float x = v.x;
+	float y = v.y;
+	float z = v.z;
+
+	return std::sqrtf((x * x) + (y * y) + (z * z));
+}
+
+float VectorTransform::magnitude
+(
+	Vector4 const & v
+)
+{
+	float x = v.x;
+	float y = v.y;
+	float z = v.z;
+	float w = v.w;
+
+	return std::sqrtf((x * x) + (y * y) + (z * z) + (w * w));
+}
+
+Vector2 VectorTransform::normalized
+(
+	Vector2 const & v
+)
+{
+	return v * (1.0f / magnitude(v));
+}
+
+Vector3 VectorTransform::normalized
+(
+	Vector3 const & v
+)
+{
+	return v * (1.0f / magnitude(v));
+}
+
+Vector4 VectorTransform::normalized
+(
+	Vector4 const & v
+)
+{
+	return v * (1.0f / magnitude(v));
+}
+
 float VectorTransform::dot
 (
 	Vector2 const & a,

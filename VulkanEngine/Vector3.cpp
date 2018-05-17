@@ -72,3 +72,11 @@ Vector3 & Vector3::operator=
 	
 	return *this;
 }
+
+Vector3 Vector3::operator*
+(
+	float scalar
+) const
+{
+	return Vector3(scalar * x, scalar * y, scalar * z);
+}

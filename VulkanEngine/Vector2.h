@@ -27,4 +27,9 @@ struct Vector2
 	(
 		Vector2 const & other
 	);
+
+	Vector2 operator*
+	(
+		float scalar
+	) const;
 };
