@@ -32,4 +32,14 @@ struct Vector2
 	(
 		float scalar
 	) const;
+
+	Vector2 operator+
+	(
+		Vector2 const & other
+	) const;
+
+	Vector2 operator-
+	(
+		Vector2 const & other
+	) const;
 };

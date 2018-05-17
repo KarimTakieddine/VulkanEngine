@@ -58,4 +58,14 @@ struct Vector4
 	(
 		float scalar
 	) const;
+
+	Vector4 operator+
+	(
+		Vector4 const & other
+	) const;
+
+	Vector4 operator-
+	(
+		Vector4 const & other
+	) const;
 };

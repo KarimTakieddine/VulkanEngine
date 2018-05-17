@@ -53,3 +53,19 @@ Vector2 Vector2::operator*
 {
 	return Vector2(scalar * x, scalar * y);
 }
+
+Vector2 Vector2::operator+
+(
+	Vector2 const & other
+) const
+{
+	return Vector2(x + other.x, y + other.y);
+}
+
+Vector2 Vector2::operator-
+(
+	Vector2 const & other
+) const
+{
+	return Vector2(x - other.x, y - other.y);
+}

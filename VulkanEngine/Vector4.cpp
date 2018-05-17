@@ -112,3 +112,19 @@ Vector4 Vector4::operator*
 {
 	return Vector4(scalar * x, scalar * y, scalar * z, scalar * w);
 }
+
+Vector4 Vector4::operator+
+(
+	Vector4 const & other
+) const
+{
+	return Vector4(x + other.x, y + other.y, z + other.z, w + other.w);
+}
+
+Vector4 Vector4::operator-
+(
+	Vector4 const & other
+) const
+{
+	return Vector4(x - other.x, y - other.y, z - other.z, w - other.w);
+}

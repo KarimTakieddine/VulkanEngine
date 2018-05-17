@@ -80,3 +80,19 @@ Vector3 Vector3::operator*
 {
 	return Vector3(scalar * x, scalar * y, scalar * z);
 }
+
+Vector3 Vector3::operator+
+(
+	Vector3 const & other
+) const
+{
+	return Vector3(x + other.x, y + other.y, z + other.z);
+}
+
+Vector3 Vector3::operator-
+(
+	Vector3 const & other
+) const
+{
+	return Vector3(x - other.x, y - other.y, z - other.z);
+}

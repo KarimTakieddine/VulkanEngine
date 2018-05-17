@@ -4,6 +4,7 @@
 
 class VectorTransform
 {
+public:
 	static float magnitude
 	(
 		Vector2 const & v

@@ -45,4 +45,14 @@ struct Vector3
 	(
 		float scalar
 	) const;
+
+	Vector3 operator+
+	(
+		Vector3 const & other	
+	) const;
+
+	Vector3 operator-
+	(
+		Vector3 const & other	
+	) const;
 };
