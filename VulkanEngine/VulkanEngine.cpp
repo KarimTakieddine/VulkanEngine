@@ -222,16 +222,7 @@ int main()
 
 	assert(vkCreateShaderModule(logicalDevice, &fragmentShaderCreateInfo, nullptr, &fragmentShaderModule) == VK_SUCCESS);
 
-	const std::vector<Vertex> vertices = {
-		{ { -0.5f, -0.5f },{ 1.0f, 0.0f, 0.0f } },
-	{ { 0.5f, -0.5f },{ 0.0f, 1.0f, 0.0f } },
-	{ { 0.5f, 0.5f },{ 0.0f, 0.0f, 1.0f } },
-	{ { -0.5f, 0.5f },{ 1.0f, 1.0f, 1.0f } }
-	};
-
-	const std::vector<uint16_t> indices = {
-		0, 1, 2, 2, 3, 0
-	};
+	const std::vector<uint16_t> indices = { 0, 1, 2, 2, 3, 0 };
 
 	Vertex vertexData[4] =
 	{
@@ -268,7 +259,6 @@ int main()
 	assert(sceneUniformBuffer->allocate(physicalDevice, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));
 	assert(sceneUniformBuffer->fill(reinterpret_cast<void *>(&sceneUniform), 0));
 	vkBindBufferMemory(logicalDevice, sceneUniformBuffer->getHandle(), sceneUniformBuffer->getMemoryHandle(), 0);
-
 
 	VkPipelineShaderStageCreateInfo vertexShaderStageInfo;
 	vertexShaderStageInfo.sType					= VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
