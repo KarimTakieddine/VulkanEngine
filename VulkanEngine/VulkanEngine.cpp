@@ -269,6 +269,7 @@ int main()
 	assert(sceneUniformBuffer->fill(reinterpret_cast<void *>(&sceneUniform), 0));
 	vkBindBufferMemory(logicalDevice, sceneUniformBuffer->getHandle(), sceneUniformBuffer->getMemoryHandle(), 0);
 
+
 	VkPipelineShaderStageCreateInfo vertexShaderStageInfo;
 	vertexShaderStageInfo.sType					= VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	vertexShaderStageInfo.flags					= 0;
