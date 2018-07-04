@@ -36,4 +36,12 @@ public:
 	bool operator==(VersionNumber const & other);
 
 	bool operator!=(VersionNumber const & other);
+
+	bool operator>(VersionNumber const & other);
+
+	bool operator>=(VersionNumber const & other);
+
+	bool operator<(VersionNumber const & other);
+
+	bool operator<=(VersionNumber const & other);
 };

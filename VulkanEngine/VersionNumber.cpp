@@ -46,10 +46,30 @@ uint32_t VersionNumber::toInteger() const
 
 bool VersionNumber::operator==(VersionNumber const & other)
 {
-	return (m_major == other.m_major) && (m_minor == other.m_minor) && (m_patch == other.m_patch);
+	return toInteger() == other.toInteger();
 }
 
 bool VersionNumber::operator!=(VersionNumber const & other)
 {
 	return !(*this == other);
+}
+
+bool VersionNumber::operator>(VersionNumber const & other)
+{
+	return toInteger() > other.toInteger();
+}
+
+bool VersionNumber::operator>=(VersionNumber const & other)
+{
+	return toInteger() >= other.toInteger();
+}
+
+bool VersionNumber::operator<(VersionNumber const & other)
+{
+	return toInteger() < other.toInteger();
+}
+
+bool VersionNumber::operator<=(VersionNumber const & other)
+{
+	return toInteger() <= other.toInteger();
 }
