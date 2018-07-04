@@ -33,6 +33,16 @@ struct Matrix2
 		Matrix2 const & other
 	);
 
+	Vector2 & operator[]
+	(
+		size_t index
+	);
+
+	Vector2 const & operator[]
+	(
+		size_t index
+	) const;
+
 	Matrix2 & operator=
 	(
 		Matrix2 const & other

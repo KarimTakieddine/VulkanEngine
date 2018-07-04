@@ -35,6 +35,21 @@ x(other.x),
 y(other.y)
 {}
 
+float & Vector2::operator[](size_t index)
+{
+	return const_cast<float &>(static_cast<Vector2 const &>(*this)[index]);
+}
+
+float const & Vector2::operator[](size_t index) const
+{
+	if (index > 2)
+	{
+		throw std::out_of_range("Attempt to access Vector2 data with out of range offset");
+	}
+
+	return (&x)[index];
+}
+
 Vector2 & Vector2::operator=
 (
 	Vector2 const & other

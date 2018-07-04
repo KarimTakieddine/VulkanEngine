@@ -36,6 +36,16 @@ struct Vector3
 		Vector3 const & other
 	);
 
+	float & operator[]
+	(
+		size_t index
+	);
+
+	float const & operator[]
+	(
+		size_t index
+	) const;
+
 	Vector3 & operator=
 	(
 		Vector3 const & other

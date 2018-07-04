@@ -222,14 +222,12 @@ int main()
 
 	assert(vkCreateShaderModule(logicalDevice, &fragmentShaderCreateInfo, nullptr, &fragmentShaderModule) == VK_SUCCESS);
 
-	const std::vector<uint16_t> indices = { 0, 1, 2, 2, 3, 0 };
-
 	Vertex vertexData[4] =
 	{
-		Vertex(Vector3(-0.5f, 0.5f, 0.0f), Vector3(1.0f, 0.0f, 0.0f)),
-		Vertex(Vector3(0.5f, 0.5f, 0.0f), Vector3(0.0f, 1.0f, 0.0f)),
-		Vertex(Vector3(0.5f, -0.5f, 0.0f), Vector3(0.0f, 0.0f, 1.0f)),
-		Vertex(Vector3(-0.5f, -0.5f, 0.0f), Vector3(0.0f, 0.0f, 1.0f)),
+		Vertex(Vector3(-0.5f, -0.5f, 0.0f), Vector3(1.0f, 0.0f, 0.0f)),
+		Vertex(Vector3(0.5f, -0.5f, 0.0f), Vector3(0.0f, 1.0f, 0.0f)),
+		Vertex(Vector3(0.5f, 0.5f, 0.0f), Vector3(0.0f, 0.0f, 1.0f)),
+		Vertex(Vector3(-0.5f, 0.5f, 0.0f), Vector3(0.0f, 0.0f, 1.0f)),
 	};
 
 	Buffer * vertexBuffer = new Buffer(4 * sizeof(Vertex), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE, QueueFamilyIndexList(1, deviceQueueFamilyIndex), logicalDevice);
@@ -240,7 +238,7 @@ int main()
 	uint16_t indexData[6] =
 	{
 		0, 1, 2,
-		0, 2, 3
+		2, 3, 0
 	};
 
 	Buffer * indexBuffer = new Buffer(6 * sizeof(uint16_t), VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE, QueueFamilyIndexList(1, deviceQueueFamilyIndex), logicalDevice);
@@ -251,9 +249,18 @@ int main()
 	SceneUniform sceneUniform
 	(
 		MatrixTransform::identityMatrix4(),
-		MatrixTransform::identityMatrix4(),
-		MatrixTransform::identityMatrix4()
+		MatrixTransform::view(Vector3(2.0f, 2.0f, 2.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f)),
+		MatrixTransform::projection(45.0f, 640.0f / 480.0f, 0.1, 10.0f)
 	);
+
+	/*
+		GLM was originally designed for OpenGL, where the Y coordinate
+		of the clip coordinates is inverted. The easiest way to compensate
+		for that is to flip the sign on the scaling factor of the Y axis in
+		the projection matrix.
+	*/
+
+	sceneUniform.projection()[1][1] *= -1;
 
 	Buffer * sceneUniformBuffer = new Buffer(sizeof(SceneUniform), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE, QueueFamilyIndexList(1, deviceQueueFamilyIndex), logicalDevice);
 	assert(sceneUniformBuffer->allocate(physicalDevice, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));

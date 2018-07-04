@@ -45,6 +45,16 @@ struct Matrix3
 		Matrix3 const & other
 	);
 
+	Vector3 & operator[]
+	(
+		size_t index
+	);
+
+	Vector3 const & operator[]
+	(
+		size_t index
+	) const;
+
 	Matrix3 & operator=
 	(
 		Matrix3 const & other

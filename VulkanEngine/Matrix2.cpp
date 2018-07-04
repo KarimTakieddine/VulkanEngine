@@ -46,6 +46,21 @@ Matrix2::Matrix2
 	*this = other;
 }
 
+Vector2 & Matrix2::operator[](size_t index)
+{
+	return const_cast<Vector2 &>(static_cast<Matrix2 const &>(*this)[index]);
+}
+
+Vector2 const & Matrix2::operator[](size_t index) const
+{
+	if (index > 2)
+	{
+		throw std::out_of_range("Attempt to access Matrix2 data with out of range offset");
+	}
+
+	return data[index];
+}
+
 Matrix2 & Matrix2::operator=
 (
 	Matrix2 const & other

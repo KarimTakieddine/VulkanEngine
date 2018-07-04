@@ -93,6 +93,21 @@ Matrix4::Matrix4
 	*this = other;
 }
 
+Vector4 & Matrix4::operator[](size_t index)
+{
+	return const_cast<Vector4 &>(static_cast<Matrix4 const &>(*this)[index]);
+}
+
+Vector4 const & Matrix4::operator[](size_t index) const
+{
+	if (index > 4)
+	{
+		throw std::out_of_range("Attempt to access Matrix4 data with out of range offset");
+	}
+
+	return data[index];
+}
+
 Matrix4 & Matrix4::operator=
 (
 	Matrix4 const & other

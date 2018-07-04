@@ -49,6 +49,16 @@ struct Vector4
 		Vector4 const & other
 	);
 
+	float & operator[]
+	(
+		size_t index
+	);
+
+	float const & operator[]
+	(
+		size_t index
+	) const;
+
 	Vector4 & operator=
 	(
 		Vector4 const & other

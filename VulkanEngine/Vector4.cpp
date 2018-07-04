@@ -92,6 +92,21 @@ z(other.z),
 w(other.w)
 {}
 
+float & Vector4::operator[](size_t index)
+{
+	return const_cast<float &>(static_cast<Vector4 const &>(*this)[index]);
+}
+
+float const & Vector4::operator[](size_t index) const
+{
+	if (index > 4)
+	{
+		throw std::out_of_range("Attempt to access Vector4 data with out of range offset");
+	}
+
+	return (&x)[index];
+}
+
 Vector4 & Vector4::operator=
 (
 	Vector4 const & other

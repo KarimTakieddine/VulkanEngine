@@ -61,6 +61,21 @@ y(other.y),
 z(other.z)
 {}
 
+float & Vector3::operator[](size_t index)
+{
+	return const_cast<float &>(static_cast<Vector3 const &>(*this)[index]);
+}
+
+float const & Vector3::operator[](size_t index) const
+{
+	if (index > 3)
+	{
+		throw std::out_of_range("Attempt to access Vector3 data with out of range offset");
+	}
+
+	return (&x)[index];
+}
+
 Vector3 & Vector3::operator=
 (
 	Vector3 const & other

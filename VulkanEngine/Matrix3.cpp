@@ -67,6 +67,21 @@ Matrix3::Matrix3
 	*this = other;
 }
 
+Vector3 & Matrix3::operator[](size_t index)
+{
+	return const_cast<Vector3 &>(static_cast<Matrix3 const &>(*this)[index]);
+}
+
+Vector3 const & Matrix3::operator[](size_t index) const
+{
+	if (index > 3)
+	{
+		throw std::out_of_range("Attempt to access Matrix3 data with out of range offset");
+	}
+
+	return data[index];
+}
+
 Matrix3 & Matrix3::operator=
 (
 	Matrix3 const & other

@@ -23,6 +23,16 @@ struct Vector2
 		Vector2 const & other
 	);
 
+	float & operator[]
+	(
+		size_t index
+	);
+
+	float const & operator[]
+	(
+		size_t index
+	) const;
+
 	Vector2 & operator=
 	(
 		Vector2 const & other

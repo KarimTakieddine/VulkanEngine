@@ -60,6 +60,16 @@ struct Matrix4
 		Matrix4 const & other
 	);
 
+	Vector4 & operator[]
+	(
+		size_t index
+	);
+
+	Vector4 const & operator[]
+	(
+		size_t index
+	) const;
+
 	Matrix4 & operator=
 	(
 		Matrix4 const & other
