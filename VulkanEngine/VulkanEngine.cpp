@@ -9,6 +9,7 @@
 #include "Vertex.h"
 #include "MatrixTransform.h"
 #include "SceneUniform.h"
+#include "Time.h"
 
 int main()
 {
@@ -261,6 +262,8 @@ int main()
 	*/
 
 	sceneUniform.projection()[1][1] *= -1;
+
+	sceneUniform.view() = sceneUniform.view() * MatrixTransform::rotation(10.0f);
 
 	Buffer * sceneUniformBuffer = new Buffer(sizeof(SceneUniform), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE, QueueFamilyIndexList(1, deviceQueueFamilyIndex), logicalDevice);
 	assert(sceneUniformBuffer->allocate(physicalDevice, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));
@@ -604,7 +607,7 @@ int main()
 
 		assert(vkBeginCommandBuffer(commandBuffers[i], &commandBufferBeginInfo) == VK_SUCCESS);
 
-		VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+		VkClearValue clearColor = { 1.0f, 0.411765f, 0.705882f, 1.0f };
 
 		VkRenderPassBeginInfo renderPassBeginInfo	= {};
 		renderPassBeginInfo.sType					= VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -649,6 +652,12 @@ int main()
 
 	assert(vkCreateSemaphore(logicalDevice, &imageAvailableCreateInfo, nullptr, &imageAvailableSemaphore) == VK_SUCCESS && vkCreateSemaphore(logicalDevice, &renderCompleteCreateInfo, nullptr, &renderCompleteSemaphore) == VK_SUCCESS);
 
+	Matrix4 initialViewMatrix = sceneUniform.view();
+
+	float viewRotation = 0.0f;
+
+	Time::initialize();
+
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
@@ -692,10 +701,21 @@ int main()
 
 		vkQueueWaitIdle(presentationQueue.getHandle());
 
+		viewRotation += 30.0f * Time::deltaTime;
+
+		sceneUniform.view() = initialViewMatrix * MatrixTransform::rotation(viewRotation);
+
+		void* data;
+		vkMapMemory(logicalDevice, sceneUniformBuffer->getMemoryHandle(), 0, sizeof(SceneUniform), 0, &data);
+		memcpy(data, &sceneUniform, sizeof(SceneUniform));
+		vkUnmapMemory(logicalDevice, sceneUniformBuffer->getMemoryHandle());
+
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		{
 			glfwSetWindowShouldClose(window, GL_TRUE);
 		}
+
+		Time::update();
 	}
 
 	vkDeviceWaitIdle(logicalDevice);

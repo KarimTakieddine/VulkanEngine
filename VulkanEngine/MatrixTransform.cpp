@@ -58,3 +58,16 @@ Matrix4 MatrixTransform::projection
 		Vector4(0.0f, 										0.0f,						-(2.0f * zFar * zNear) / (zFar - zNear),	0.0f)
 	);
 }
+
+Matrix4 MatrixTransform::rotation(float degrees)
+{
+	float radians = toRadians(degrees);
+
+	return Matrix4
+	(
+		Vector4(std::cosf(radians), 0.0f, std::sinf(radians), 0.0f),
+		Vector4(0.0f, 1.0f, 0.0f, 0.0f),
+		Vector4(-std::sinf(radians), 0.0f, std::cosf(radians), 0.0f),
+		Vector4(0.0f, 0.0f, 0.0f, 1.0f)
+	);
+}

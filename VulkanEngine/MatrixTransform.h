@@ -29,4 +29,9 @@ public:
 		float zNear,
 		float zFar
 	);
+
+	static Matrix4 rotation
+	(
+		float degrees
+	);
 };

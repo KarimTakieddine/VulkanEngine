@@ -121,3 +121,45 @@ Matrix4 & Matrix4::operator=
 
 	return *this;
 }
+
+Matrix4 operator*
+(
+	Matrix4 const & a,
+	Matrix4 const & b
+)
+{
+	return Matrix4
+	(
+		Vector4
+		(
+			VectorTransform::dot(a[0], Vector4(b[0][0], b[1][0], b[2][0], b[3][0])),
+			VectorTransform::dot(a[0], Vector4(b[0][1], b[1][1], b[2][1], b[3][1])),
+			VectorTransform::dot(a[0], Vector4(b[0][2], b[1][2], b[2][2], b[3][2])),
+			VectorTransform::dot(a[0], Vector4(b[0][3], b[1][3], b[2][3], b[3][3]))
+		),
+
+		Vector4
+		(
+			VectorTransform::dot(a[1], Vector4(b[0][0], b[1][0], b[2][0], b[3][0])),
+			VectorTransform::dot(a[1], Vector4(b[0][1], b[1][1], b[2][1], b[3][1])),
+			VectorTransform::dot(a[1], Vector4(b[0][2], b[1][2], b[2][2], b[3][2])),
+			VectorTransform::dot(a[1], Vector4(b[0][3], b[1][3], b[2][3], b[3][3]))
+		),
+
+		Vector4
+		(
+			VectorTransform::dot(a[2], Vector4(b[0][0], b[1][0], b[2][0], b[3][0])),
+			VectorTransform::dot(a[2], Vector4(b[0][1], b[1][1], b[2][1], b[3][1])),
+			VectorTransform::dot(a[2], Vector4(b[0][2], b[1][2], b[2][2], b[3][2])),
+			VectorTransform::dot(a[2], Vector4(b[0][3], b[1][3], b[2][3], b[3][3]))
+		),
+
+		Vector4
+		(
+			VectorTransform::dot(a[3], Vector4(b[0][0], b[1][0], b[2][0], b[3][0])),
+			VectorTransform::dot(a[3], Vector4(b[0][1], b[1][1], b[2][1], b[3][1])),
+			VectorTransform::dot(a[3], Vector4(b[0][2], b[1][2], b[2][2], b[3][2])),
+			VectorTransform::dot(a[3], Vector4(b[0][3], b[1][3], b[2][3], b[3][3]))
+		)
+	);
+}

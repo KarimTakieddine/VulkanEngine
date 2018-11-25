@@ -1,7 +1,7 @@
 #pragma once
 
 #include "stdafx.h"
-#include "Vector4.h"
+#include "VectorTransform.h"
 
 struct Matrix4
 {
@@ -75,3 +75,5 @@ struct Matrix4
 		Matrix4 const & other
 	);
 };
+
+Matrix4 operator*(Matrix4 const & a, Matrix4 const & b);
