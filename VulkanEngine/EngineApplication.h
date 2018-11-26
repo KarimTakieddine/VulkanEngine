@@ -4,6 +4,7 @@
 #include "VersionNumber.h"
 
 typedef std::vector<char const *> CStringList;
+typedef std::vector<VkPhysicalDevice> PhysicalDeviceList;
 
 class EngineApplication
 {
@@ -20,6 +21,10 @@ public:
 
 	VkResult initializeWindow(char const * name, int width, int height);
 
+	static int getSupportedDeviceIndex(VersionNumber const & driverVersion, PhysicalDeviceList const & physicalDeviceList);
+
+	VkResult selectPhysicalDevice(VersionNumber const & driverVersion);
+
 	~EngineApplication();
 
 private:
@@ -30,4 +35,5 @@ private:
 
 	GLFWwindow * m_window;
 	VkInstance m_vulkanInstance;
+	VkPhysicalDevice m_physicalDevice;
 };

@@ -82,6 +82,56 @@ VkResult EngineApplication::initializeWindow(char const * name, int width, int h
 	return VK_SUCCESS;
 }
 
+int EngineApplication::getSupportedDeviceIndex(VersionNumber const & driverVersion, PhysicalDeviceList const & physicalDeviceList)
+{
+	for (uint32_t i = 0; i < physicalDeviceList.size(); ++i)
+	{
+		VkPhysicalDeviceProperties deviceProperties;
+
+		vkGetPhysicalDeviceProperties(physicalDeviceList[i], &deviceProperties);
+
+		VersionNumber deviceAPIVersionNumber = VersionNumber::fromInteger(deviceProperties.apiVersion);
+		VersionNumber deviceDriverVersionNumber = VersionNumber::fromInteger(deviceProperties.driverVersion);
+
+		if (
+			deviceAPIVersionNumber >= APIVersion &&
+			deviceDriverVersionNumber >= driverVersion
+			)
+		{
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+VkResult EngineApplication::selectPhysicalDevice(VersionNumber const & driverVersion)
+{
+	uint32_t physicalDeviceCount = 0;
+
+	vkEnumeratePhysicalDevices(m_vulkanInstance, &physicalDeviceCount, nullptr);
+
+	if (physicalDeviceCount == 0)
+	{
+		return VK_ERROR_DEVICE_LOST;
+	}
+
+	PhysicalDeviceList physicalDeviceList(physicalDeviceCount);
+
+	vkEnumeratePhysicalDevices(m_vulkanInstance, &physicalDeviceCount, physicalDeviceList.data());
+
+	int supportedDeviceIndex = getSupportedDeviceIndex(driverVersion, physicalDeviceList);
+
+	if (supportedDeviceIndex == -1)
+	{
+		return VK_ERROR_INCOMPATIBLE_DRIVER;
+	}
+
+	m_physicalDevice = physicalDeviceList[supportedDeviceIndex];
+
+	return VK_SUCCESS;
+}
+
 EngineApplication::~EngineApplication()
 {
 	vkDestroyInstance(m_vulkanInstance, nullptr);
@@ -99,4 +149,4 @@ void EngineApplication::onWindowResized(GLFWwindow * window, int width, int heig
 	EngineApplication * instance = reinterpret_cast<EngineApplication *>(glfwGetWindowUserPointer(window));
 }
 
-EngineApplication::EngineApplication() : m_window(nullptr), m_vulkanInstance(VK_NULL_HANDLE) { }
+EngineApplication::EngineApplication() : m_window(nullptr), m_vulkanInstance(VK_NULL_HANDLE), m_physicalDevice(VK_NULL_HANDLE) { }
