@@ -5,6 +5,7 @@
 #include "Buffer.h"
 #include "DeviceBufferFactory.h"
 #include "DeviceQueue.h"
+#include "EngineApplication.h"
 #include "File.h"
 #include "PhysicalDeviceLoader.h"
 #include "Vertex.h"
@@ -14,6 +15,8 @@
 
 int main()
 {
+	std::unique_ptr<EngineApplication> engineApplicationPtr(&EngineApplication::getInstance());
+
 	VersionNumber apiVersionNumber(1, 0, 65);
 	VersionNumber applicationVersionNumber(1, 0, 0);
 	VersionNumber engineVersionNumber(1, 0, 0);

@@ -160,6 +160,7 @@
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="DeviceBufferFactory.h" />
     <ClInclude Include="DeviceQueue.h" />
+    <ClInclude Include="EngineApplication.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="Matrix2.h" />
     <ClInclude Include="Matrix3.h" />
