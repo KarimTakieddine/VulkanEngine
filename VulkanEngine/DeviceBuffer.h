@@ -24,6 +24,8 @@ public:
 
 	VkDeviceSize getDeviceMemorySize() const;
 
+	VkResult write(void const * data) const;
+
 	~DeviceBuffer();
 
 private:
@@ -36,6 +38,7 @@ private:
 
 	VkDevice m_deviceHandle;
 	VkBuffer m_bufferHandle;
+	VkDeviceSize m_bufferSize;
 	VkDeviceMemory m_deviceMemoryHandle;
 	VkDeviceSize m_deviceMemorySize;
 

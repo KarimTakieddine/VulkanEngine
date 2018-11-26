@@ -35,7 +35,11 @@ std::shared_ptr<DeviceBuffer> DeviceBufferFactory::createDeviceBuffer
 	VkBufferCreateInfo const * bufferCreateInfo
 )
 {
-	if (bufferCreateInfo == nullptr)
+	if (
+		logicalDevice == VK_NULL_HANDLE		||
+		physicalDevice == VK_NULL_HANDLE	||
+		bufferCreateInfo == nullptr
+	)
 	{
 		return nullptr;
 	}
@@ -77,6 +81,7 @@ std::shared_ptr<DeviceBuffer> DeviceBufferFactory::createDeviceBuffer
 
 	deviceBufferPtr->m_deviceHandle = logicalDevice;
 	deviceBufferPtr->m_bufferHandle = bufferHandle;
+	deviceBufferPtr->m_bufferSize = bufferCreateInfo->size;
 	deviceBufferPtr->m_deviceMemoryHandle = deviceMemoryHandle;
 	deviceBufferPtr->m_deviceMemorySize = deviceMemorySize;
 
