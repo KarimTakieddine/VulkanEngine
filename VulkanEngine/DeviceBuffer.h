@@ -24,6 +24,8 @@ public:
 
 	VkDeviceSize getDeviceMemorySize() const;
 
+	VkResult bind(VkDeviceSize offset) const;
+
 	VkResult write(void const * data) const;
 
 	~DeviceBuffer();

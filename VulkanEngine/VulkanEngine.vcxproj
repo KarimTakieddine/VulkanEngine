@@ -184,6 +184,7 @@
     <ClCompile Include="DeviceBuffer.cpp" />
     <ClCompile Include="DeviceBufferFactory.cpp" />
     <ClCompile Include="DeviceQueue.cpp" />
+    <ClCompile Include="EngineApplication.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="Matrix2.cpp" />
     <ClCompile Include="Matrix3.cpp" />

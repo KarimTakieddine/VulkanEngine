@@ -59,6 +59,11 @@ VkDeviceSize DeviceBuffer::getDeviceMemorySize() const
 	return m_deviceMemorySize;
 }
 
+VkResult DeviceBuffer::bind(VkDeviceSize offset) const
+{
+	return vkBindBufferMemory(m_deviceHandle, m_bufferHandle, m_deviceMemoryHandle, offset);
+}
+
 VkResult DeviceBuffer::write(void const * data) const
 {
 	void * deviceData = nullptr;
