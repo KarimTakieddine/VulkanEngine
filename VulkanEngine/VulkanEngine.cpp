@@ -704,11 +704,7 @@ int main()
 		viewRotation += 30.0f * Time::deltaTime;
 
 		sceneUniform.view() = initialViewMatrix * MatrixTransform::rotation(viewRotation);
-
-		void* data;
-		vkMapMemory(logicalDevice, sceneUniformBuffer->getMemoryHandle(), 0, sizeof(SceneUniform), 0, &data);
-		memcpy(data, &sceneUniform, sizeof(SceneUniform));
-		vkUnmapMemory(logicalDevice, sceneUniformBuffer->getMemoryHandle());
+		sceneUniformBuffer->fill(&sceneUniform, 0);
 
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		{
