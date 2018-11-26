@@ -737,6 +737,7 @@ int main()
 		vkDestroyFramebuffer(logicalDevice, swapChainFrameBuffers[i], nullptr);
 	}
 
+	deviceBuffer.reset();
 	vkDestroyDescriptorSetLayout(logicalDevice, descriptorSetLayout, nullptr);
 	vkDestroyDescriptorPool(logicalDevice, descriptorPool, nullptr);
 	delete(sceneUniformBuffer);
