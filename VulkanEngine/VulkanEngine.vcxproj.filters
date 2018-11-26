@@ -72,6 +72,9 @@
     <ClInclude Include="DeviceBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DeviceBufferFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -126,6 +129,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Time.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DeviceBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DeviceBufferFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

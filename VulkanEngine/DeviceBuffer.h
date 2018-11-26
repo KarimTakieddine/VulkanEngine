@@ -7,78 +7,32 @@ class DeviceBuffer
 
 public:
 
-	DeviceBuffer()
-	{
-		clear();
-	}
+	friend class DeviceBufferFactory;
 
 	DeviceBuffer(const DeviceBuffer &) = delete;
 	DeviceBuffer &operator=(const DeviceBuffer &) = delete;
 
-	DeviceBuffer
-	(
-		DeviceBuffer && r_value
-	)
-	{
-		/* 
-			TODO: Consider efficiency of this approach
-			relative to simple member assignment.
-		*/
+	DeviceBuffer(DeviceBuffer && r_value);
 
-		std::move(r_value);
+	DeviceBuffer & operator=(DeviceBuffer && r_value);
 
-		clear();
-		
-		std::swap(m_deviceHandle, r_value.m_deviceHandle);
-		std::swap(m_bufferHandle, r_value.m_bufferHandle);
-		std::swap(m_deviceMemoryHandle, r_value.m_deviceMemoryHandle);
-		std::swap(m_deviceMemorySize, r_value.m_deviceMemorySize);
-	}
+	VkDevice getDeviceHandle() const;
 
-	DeviceBuffer & operator=(DeviceBuffer && r_value)
-	{
-		// Check for self-assignment
+	VkBuffer getBufferHandle() const;
 
-		if (this == &r_value)
-		{
-			return *this;
-		}
+	VkBuffer getDeviceMemoryHandle() const;
 
-		release();
+	VkDeviceSize getDeviceMemorySize() const;
 
-		std::swap(m_deviceHandle, r_value.m_deviceHandle);
-		std::swap(m_bufferHandle, r_value.m_bufferHandle);
-		std::swap(m_deviceMemoryHandle, r_value.m_deviceMemoryHandle);
-		std::swap(m_deviceMemorySize, r_value.m_deviceMemorySize);
-
-		return *this;
-	}
-
-	~DeviceBuffer()
-	{
-		release();
-	}
+	~DeviceBuffer();
 
 private:
 
-	void clear()
-	{
-		m_deviceHandle = VK_NULL_HANDLE;
-		m_bufferHandle = VK_NULL_HANDLE;
-		m_deviceMemoryHandle = VK_NULL_HANDLE;
-		m_deviceMemorySize = 0;
-	}
+	DeviceBuffer();
 
-	void release()
-	{
-		if (m_deviceHandle != VK_NULL_HANDLE)
-		{
-			vkDestroyBuffer(m_deviceHandle, m_bufferHandle, nullptr);
-			vkFreeMemory(m_deviceHandle, m_deviceMemoryHandle, nullptr);
-		}
+	void clear();
 
-		clear();
-	}
+	void release();
 
 	VkDevice m_deviceHandle;
 	VkBuffer m_bufferHandle;

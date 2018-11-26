@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "Buffer.h"
+#include "DeviceBufferFactory.h"
 #include "DeviceQueue.h"
 #include "File.h"
 #include "PhysicalDeviceLoader.h"
@@ -168,6 +169,21 @@ int main()
 	vkGetSwapchainImagesKHR(logicalDevice, deviceSwapChain, &swapChainImageCount, swapChainImages);
 
 	VkImageView * swapChainImageViews = new VkImageView[swapChainImageCount]();
+
+	VkBufferCreateInfo deviceBufferCreateInfo;
+
+	QueueFamilyIndexList queueFamilyIndices(1, deviceQueueFamilyIndex);
+
+	deviceBufferCreateInfo.flags					= 0;
+	deviceBufferCreateInfo.pNext					= nullptr;
+	deviceBufferCreateInfo.pQueueFamilyIndices		= queueFamilyIndices.data();
+	deviceBufferCreateInfo.queueFamilyIndexCount	= 1;
+	deviceBufferCreateInfo.sharingMode				= VK_SHARING_MODE_EXCLUSIVE;
+	deviceBufferCreateInfo.size						= 64;
+	deviceBufferCreateInfo.usage					= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+	deviceBufferCreateInfo.sType					= VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+
+	std::shared_ptr<DeviceBuffer> deviceBuffer = DeviceBufferFactory::createDeviceBuffer(logicalDevice, physicalDevice, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &deviceBufferCreateInfo);
 
 	for (uint32_t i = 0; i < swapChainImageCount; ++i)
 	{

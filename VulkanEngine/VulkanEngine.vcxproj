@@ -158,6 +158,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Buffer.h" />
+    <ClInclude Include="DeviceBufferFactory.h" />
     <ClInclude Include="DeviceQueue.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="Matrix2.h" />
@@ -179,6 +180,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Buffer.cpp" />
+    <ClCompile Include="DeviceBuffer.cpp" />
+    <ClCompile Include="DeviceBufferFactory.cpp" />
     <ClCompile Include="DeviceQueue.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="Matrix2.cpp" />
