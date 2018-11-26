@@ -76,6 +76,9 @@ VkResult EngineApplication::initializeWindow(char const * name, int width, int h
 		return VK_ERROR_INITIALIZATION_FAILED;
 	}
 
+	glfwSetWindowUserPointer(m_window, this);
+	glfwSetWindowSizeCallback(m_window, &EngineApplication::onWindowResized);
+
 	return VK_SUCCESS;
 }
 
@@ -84,6 +87,16 @@ EngineApplication::~EngineApplication()
 	vkDestroyInstance(m_vulkanInstance, nullptr);
 	glfwDestroyWindow(m_window);
 	glfwTerminate();
+}
+
+void EngineApplication::onWindowResized(GLFWwindow * window, int width, int height)
+{
+	/*
+		Emulating invocation of non-static member function by storing
+		transient EngineApplication state.
+	*/
+
+	EngineApplication * instance = reinterpret_cast<EngineApplication *>(glfwGetWindowUserPointer(window));
 }
 
 EngineApplication::EngineApplication() : m_window(nullptr), m_vulkanInstance(VK_NULL_HANDLE) { }

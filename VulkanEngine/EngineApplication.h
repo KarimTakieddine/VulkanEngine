@@ -24,6 +24,8 @@ public:
 
 private:
 
+	static void onWindowResized(GLFWwindow * window, int width, int height);
+
 	EngineApplication();
 
 	GLFWwindow * m_window;
