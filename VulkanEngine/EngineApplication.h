@@ -1,44 +1,31 @@
 #pragma once
 
 #include "stdafx.h"
+#include "VersionNumber.h"
+
+typedef std::vector<char const *> CStringList;
 
 class EngineApplication
 {
 
 public:
 
-	static EngineApplication & getInstance()
-	{
-		/*
-			From the ISO/IEC 2012 standard, section 6.7.4:
+	static const VersionNumber APIVersion;
+	static const VersionNumber ApplicationVersion;
+	static const VersionNumber EngineVersion;
 
-			The zero-initialization of all block-scope variables with static storage
-			duration or thread storage duration is performed before any other initialization
-			takes place.
+	static EngineApplication & getInstance();
 
-			If control enters the declaration concurrently while the variable is being
-			initialized, the concurrent execution shall wait for completion of the
-			initialization.
-		*/
+	VkResult initialize(char const * applicationName, char const * engineName, CStringList const & layerNames, CStringList const & extensionNames);
 
-		static EngineApplication instance;
+	VkResult initializeWindow(char const * name, int width, int height);
 
-		return instance;
-	}
-
-	~EngineApplication()
-	{
-		vkDestroyInstance(m_vulkanInstance, nullptr);
-	}
+	~EngineApplication();
 
 private:
 
-	EngineApplication()
-	:
-	m_vulkanInstance(VK_NULL_HANDLE)
-	{
+	EngineApplication();
 
-	}
-
+	GLFWwindow * m_window;
 	VkInstance m_vulkanInstance;
 };
