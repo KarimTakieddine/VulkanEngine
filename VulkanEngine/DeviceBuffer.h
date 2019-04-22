@@ -9,6 +9,8 @@ public:
 
 	friend class DeviceBufferFactory;
 
+	DeviceBuffer();
+
 	DeviceBuffer(const DeviceBuffer &) = delete;
 	DeviceBuffer &operator=(const DeviceBuffer &) = delete;
 
@@ -31,8 +33,6 @@ public:
 	~DeviceBuffer();
 
 private:
-
-	DeviceBuffer();
 
 	void clear();
 

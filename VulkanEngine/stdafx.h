@@ -16,3 +16,7 @@
 #include "vulkan\vulkan.hpp"
 
 #include "GLFW\glfw3.h"
+
+typedef std::vector<char const *> CStringList;
+typedef std::vector<VkPhysicalDevice> PhysicalDeviceList;
+typedef std::vector<VkSurfaceFormatKHR> SurfaceFormatList;

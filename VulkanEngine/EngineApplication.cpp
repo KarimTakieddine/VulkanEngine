@@ -26,7 +26,7 @@ EngineApplication & EngineApplication::getInstance()
 	return instance;
 }
 
-VkResult EngineApplication::initialize(char const * applicationName, char const * engineName, CStringList const & layerNames, CStringList const & extensionNames)
+VkResult EngineApplication::initializeContext(char const * applicationName, char const * engineName, CStringList const & layerNames, CStringList const & extensionNames)
 {
 	if (glfwInit() != VK_TRUE)
 	{
@@ -45,14 +45,16 @@ VkResult EngineApplication::initialize(char const * applicationName, char const 
 
 	VkInstanceCreateInfo instanceCreateInfo;
 
+	uint32_t requiredExtensionCount = 0;
+
 	instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	instanceCreateInfo.flags = 0;
 	instanceCreateInfo.pNext = nullptr;
 	instanceCreateInfo.pApplicationInfo = &applicationInfo;
 	instanceCreateInfo.enabledLayerCount = layerNames.size();
 	instanceCreateInfo.ppEnabledLayerNames = layerNames.data();
-	instanceCreateInfo.enabledExtensionCount = extensionNames.size();
-	instanceCreateInfo.ppEnabledExtensionNames = extensionNames.data();
+	instanceCreateInfo.ppEnabledExtensionNames = glfwGetRequiredInstanceExtensions(&requiredExtensionCount);
+	instanceCreateInfo.enabledExtensionCount = requiredExtensionCount;
 
 	VkResult instanceCreateResult = vkCreateInstance(&instanceCreateInfo, nullptr, &m_vulkanInstance);
 
@@ -132,6 +134,96 @@ VkResult EngineApplication::selectPhysicalDevice(VersionNumber const & driverVer
 	return VK_SUCCESS;
 }
 
+int EngineApplication::getQueueFamilyIndex(VkPhysicalDevice physicalDevice, uint32_t requiredCount, VkQueueFlags requiredFlags)
+{
+	uint32_t deviceQueueFamilyCount = 0;
+
+	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &deviceQueueFamilyCount, nullptr);
+
+	if (deviceQueueFamilyCount == 0)
+	{
+		return -1;
+	}
+
+	std::vector<VkQueueFamilyProperties> queueFamilyPropertiesList(deviceQueueFamilyCount);
+	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &deviceQueueFamilyCount, queueFamilyPropertiesList.data());
+
+	for (uint32_t i = 0; i < queueFamilyPropertiesList.size(); ++i)
+	{
+		VkQueueFamilyProperties const & queueFamilyProperties = queueFamilyPropertiesList[i];
+
+		if (
+			( queueFamilyProperties.queueCount >= requiredCount ) &&
+			( (queueFamilyProperties.queueFlags & requiredFlags) == requiredFlags )
+		)
+		{
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+VkResult EngineApplication::initializeLogicalDevice()
+{
+	int deviceQueueFamilyIndex = getQueueFamilyIndex(m_physicalDevice, 1, VK_QUEUE_TRANSFER_BIT | VK_QUEUE_GRAPHICS_BIT);
+
+	if (deviceQueueFamilyIndex == -1)
+	{
+		return VK_ERROR_FEATURE_NOT_PRESENT;
+	}
+
+	static CStringList deviceExtensionNames(1, "VK_KHR_swapchain");
+
+	VkDeviceQueueCreateInfo deviceQueueCreateInfo;
+
+	float queuePriorities[1]				= { 1.0f };
+	deviceQueueCreateInfo.sType				= VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+	deviceQueueCreateInfo.flags				= 0;
+	deviceQueueCreateInfo.queueCount		= 1;
+	deviceQueueCreateInfo.pQueuePriorities	= queuePriorities;
+	deviceQueueCreateInfo.queueFamilyIndex	= deviceQueueFamilyIndex;
+	deviceQueueCreateInfo.pNext				= nullptr;
+
+	VkPhysicalDeviceFeatures enabledDeviceFeatures;
+	vkGetPhysicalDeviceFeatures(m_physicalDevice, &enabledDeviceFeatures);
+
+	VkDeviceCreateInfo logicalDeviceCreateInfo;
+	logicalDeviceCreateInfo.sType					= VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+	logicalDeviceCreateInfo.flags					= 0;
+	logicalDeviceCreateInfo.queueCreateInfoCount	= 1;
+	logicalDeviceCreateInfo.pEnabledFeatures		= &enabledDeviceFeatures;
+	logicalDeviceCreateInfo.pQueueCreateInfos		= &deviceQueueCreateInfo;
+	logicalDeviceCreateInfo.enabledLayerCount		= 0;
+	logicalDeviceCreateInfo.ppEnabledLayerNames		= nullptr;
+	logicalDeviceCreateInfo.enabledExtensionCount	= 1;
+	logicalDeviceCreateInfo.ppEnabledExtensionNames = deviceExtensionNames.data();
+	logicalDeviceCreateInfo.pNext					= nullptr;
+	
+	VkResult a = vkCreateDevice(m_physicalDevice, &logicalDeviceCreateInfo, nullptr, &m_logicalDevice);
+
+	return a;
+}
+
+VkResult EngineApplication::initializeDevice(VersionNumber const & driverVersion)
+{
+	VkResult physicalDeviceStatus = selectPhysicalDevice(driverVersion);
+
+	if (physicalDeviceStatus != VK_SUCCESS)
+	{
+		return physicalDeviceStatus;
+	}
+
+	VkResult logicalDeviceStatus = initializeLogicalDevice();
+
+	if (logicalDeviceStatus != VK_SUCCESS)
+	{
+		return logicalDeviceStatus;
+	}
+
+	return VK_SUCCESS;
+}
+
 EngineApplication::~EngineApplication()
 {
 	vkDestroyInstance(m_vulkanInstance, nullptr);
@@ -149,4 +241,13 @@ void EngineApplication::onWindowResized(GLFWwindow * window, int width, int heig
 	EngineApplication * instance = reinterpret_cast<EngineApplication *>(glfwGetWindowUserPointer(window));
 }
 
-EngineApplication::EngineApplication() : m_window(nullptr), m_vulkanInstance(VK_NULL_HANDLE), m_physicalDevice(VK_NULL_HANDLE) { }
+EngineApplication::EngineApplication()
+:
+m_window(nullptr),
+m_vulkanInstance(VK_NULL_HANDLE),
+m_physicalDevice(VK_NULL_HANDLE),
+m_logicalDevice(VK_NULL_HANDLE),
+m_deviceQueue(VK_NULL_HANDLE)
+{
+
+}

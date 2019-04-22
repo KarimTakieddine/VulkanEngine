@@ -157,11 +157,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DeviceContext.h" />
+    <ClInclude Include="EngineException.h" />
+    <ClInclude Include="InstanceContext.h" />
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="DeviceBufferFactory.h" />
     <ClInclude Include="DeviceQueue.h" />
     <ClInclude Include="EngineApplication.h" />
+    <ClInclude Include="EngineContext.h" />
     <ClInclude Include="File.h" />
+    <ClInclude Include="Device.h" />
+    <ClInclude Include="DeviceFactory.h" />
     <ClInclude Include="Matrix2.h" />
     <ClInclude Include="Matrix3.h" />
     <ClInclude Include="Matrix4.h" />
@@ -171,6 +177,8 @@
     <ClInclude Include="PhysicalDeviceRequirements.h" />
     <ClInclude Include="SceneUniform.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Surface.h" />
+    <ClInclude Include="SwapChain.h" />
     <ClInclude Include="Time.h" />
     <ClInclude Include="Vector2.h" />
     <ClInclude Include="Vector3.h" />
@@ -178,6 +186,9 @@
     <ClInclude Include="VectorTransform.h" />
     <ClInclude Include="VersionNumber.h" />
     <ClInclude Include="Vertex.h" />
+    <ClInclude Include="VulkanInstance.h" />
+    <ClInclude Include="VulkanInstanceFactory.h" />
+    <ClInclude Include="WindowContext.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Buffer.cpp" />
@@ -185,7 +196,10 @@
     <ClCompile Include="DeviceBufferFactory.cpp" />
     <ClCompile Include="DeviceQueue.cpp" />
     <ClCompile Include="EngineApplication.cpp" />
+    <ClCompile Include="EngineException.cpp" />
     <ClCompile Include="File.cpp" />
+    <ClCompile Include="Device.cpp" />
+    <ClCompile Include="DeviceFactory.cpp" />
     <ClCompile Include="Matrix2.cpp" />
     <ClCompile Include="Matrix3.cpp" />
     <ClCompile Include="Matrix4.cpp" />
@@ -198,6 +212,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Surface.cpp" />
+    <ClCompile Include="SwapChain.cpp" />
     <ClCompile Include="Time.cpp" />
     <ClCompile Include="Vector2.cpp" />
     <ClCompile Include="Vector3.cpp" />
@@ -206,6 +222,8 @@
     <ClCompile Include="VersionNumber.cpp" />
     <ClCompile Include="Vertex.cpp" />
     <ClCompile Include="VulkanEngine.cpp" />
+    <ClCompile Include="VulkanInstance.cpp" />
+    <ClCompile Include="VulkanInstanceFactory.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

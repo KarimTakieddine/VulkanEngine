@@ -8,8 +8,6 @@ DeviceBuffer::DeviceBuffer()
 
 DeviceBuffer::DeviceBuffer(DeviceBuffer && r_value)
 {
-	std::move(r_value);
-
 	clear();
 
 	std::swap(m_deviceHandle, r_value.m_deviceHandle);
@@ -21,8 +19,6 @@ DeviceBuffer::DeviceBuffer(DeviceBuffer && r_value)
 
 DeviceBuffer & DeviceBuffer::operator=(DeviceBuffer && r_value)
 {
-	// Check for self-assignment
-
 	if (this == &r_value)
 	{
 		return *this;
