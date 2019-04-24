@@ -157,8 +157,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BufferContext.h" />
+    <ClInclude Include="BufferFactory.h" />
     <ClInclude Include="DeviceContext.h" />
     <ClInclude Include="EngineException.h" />
+    <ClInclude Include="Image.h" />
+    <ClInclude Include="ImageFactory.h" />
+    <ClInclude Include="ImageView.h" />
+    <ClInclude Include="ImageViewFactory.h" />
     <ClInclude Include="InstanceContext.h" />
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="DeviceBufferFactory.h" />
@@ -176,9 +182,14 @@
     <ClInclude Include="PhysicalDeviceLoader.h" />
     <ClInclude Include="PhysicalDeviceRequirements.h" />
     <ClInclude Include="SceneUniform.h" />
+    <ClInclude Include="ShaderModule.h" />
+    <ClInclude Include="ShaderModuleFactory.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Surface.h" />
+    <ClInclude Include="SurfaceFactory.h" />
     <ClInclude Include="SwapChain.h" />
+    <ClInclude Include="SwapChainContext.h" />
+    <ClInclude Include="SwapChainFactory.h" />
     <ClInclude Include="Time.h" />
     <ClInclude Include="Vector2.h" />
     <ClInclude Include="Vector3.h" />
@@ -188,10 +199,13 @@
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="VulkanInstance.h" />
     <ClInclude Include="VulkanInstanceFactory.h" />
+    <ClInclude Include="Window.h" />
     <ClInclude Include="WindowContext.h" />
+    <ClInclude Include="WindowFactory.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Buffer.cpp" />
+    <ClCompile Include="BufferFactory.cpp" />
     <ClCompile Include="DeviceBuffer.cpp" />
     <ClCompile Include="DeviceBufferFactory.cpp" />
     <ClCompile Include="DeviceQueue.cpp" />
@@ -200,12 +214,18 @@
     <ClCompile Include="File.cpp" />
     <ClCompile Include="Device.cpp" />
     <ClCompile Include="DeviceFactory.cpp" />
+    <ClCompile Include="Image.cpp" />
+    <ClCompile Include="ImageFactory.cpp" />
+    <ClCompile Include="ImageView.cpp" />
+    <ClCompile Include="ImageViewFactory.cpp" />
     <ClCompile Include="Matrix2.cpp" />
     <ClCompile Include="Matrix3.cpp" />
     <ClCompile Include="Matrix4.cpp" />
     <ClCompile Include="MatrixTransform.cpp" />
     <ClCompile Include="PhysicalDeviceLoader.cpp" />
     <ClCompile Include="SceneUniform.cpp" />
+    <ClCompile Include="ShaderModule.cpp" />
+    <ClCompile Include="ShaderModuleFactory.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -213,7 +233,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Surface.cpp" />
+    <ClCompile Include="SurfaceFactory.cpp" />
     <ClCompile Include="SwapChain.cpp" />
+    <ClCompile Include="SwapChainFactory.cpp" />
     <ClCompile Include="Time.cpp" />
     <ClCompile Include="Vector2.cpp" />
     <ClCompile Include="Vector3.cpp" />
@@ -224,6 +246,8 @@
     <ClCompile Include="VulkanEngine.cpp" />
     <ClCompile Include="VulkanInstance.cpp" />
     <ClCompile Include="VulkanInstanceFactory.cpp" />
+    <ClCompile Include="Window.cpp" />
+    <ClCompile Include="WindowFactory.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

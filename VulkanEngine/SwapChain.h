@@ -1,11 +1,13 @@
 #pragma once
 
 #include "stdafx.h"
-#include "Device.h"
-#include "Surface.h"
+#include "DeviceFactory.h"
+#include "SurfaceFactory.h"
 
 class SwapChain
 {
+	friend class SwapChainFactory;
+
 public:
 
 	SwapChain(SwapChain const &) = delete;
@@ -14,7 +16,7 @@ public:
 	SwapChain(SwapChain && r_value);
 	SwapChain & operator=(SwapChain && r_value);
 
-	static int getFormatIndex(VkPhysicalDevice physicalDevice, VkSurfaceFormatKHR requiredFormat, std::shared_ptr<Surface> const & surface);
+	static int getFormatIndex(VkSurfaceFormatKHR const & requiredFormat, SurfacePtr const & surface, VkPhysicalDevice const & physicalDevice);
 
 	VkSwapchainKHR getHandle() const;
 
@@ -24,12 +26,6 @@ private:
 
 	SwapChain();
 
-	SwapChain(std::shared_ptr<Device> const & device);
-
-	void release();
-
-	void clear();
-
-	std::shared_ptr<Device> m_device;
+	DevicePtr m_device;
 	VkSwapchainKHR m_handle;
 };

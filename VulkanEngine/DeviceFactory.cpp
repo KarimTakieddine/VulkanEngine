@@ -31,25 +31,53 @@ DevicePtr DeviceFactory::createDevice(VulkanInstancePtr const & vulkanInstance, 
 
 	VkPhysicalDevice const & physicalDevice = physicalDeviceList[physicalDeviceIndex];
 
-	const uint32_t requiredQueueCount = deviceContext.m_requiredQueueCount;
+	uint32_t deviceQueueFamilyCount = 0;
 
-	int queueFamilyIndex = Device::getQueueFamilyIndex(physicalDevice, requiredQueueCount, deviceContext.m_requiredQueueFeatures);
+	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &deviceQueueFamilyCount, nullptr);
 
-	if (queueFamilyIndex == -1)
+	if (deviceQueueFamilyCount == 0)
 	{
 		return device;
 	}
 
-	std::vector<float> deviceQueuePriorities(requiredQueueCount, 1.0f);
+	QueueFamilyPropertiesList deviceQueueFamilyPropertiesList(deviceQueueFamilyCount);
 
-	VkDeviceQueueCreateInfo deviceQueueCreateInfo;
+	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &deviceQueueFamilyCount, deviceQueueFamilyPropertiesList.data());
 
-	deviceQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-	deviceQueueCreateInfo.flags = 0;
-	deviceQueueCreateInfo.queueCount = requiredQueueCount;
-	deviceQueueCreateInfo.pQueuePriorities = deviceQueuePriorities.data();
-	deviceQueueCreateInfo.queueFamilyIndex = queueFamilyIndex;
-	deviceQueueCreateInfo.pNext = nullptr;
+	QueueFamilyPropertiesList const & queueFamilyPropertiesList = deviceContext.m_queueFamilyProperties;
+
+	DeviceQueueCreateInfoList deviceQueueCreateInfoList;
+
+	std::vector<float> deviceQueuePriorities;
+
+	for (QueueFamilyPropertiesList::const_iterator i = queueFamilyPropertiesList.begin(); i != queueFamilyPropertiesList.end(); ++i)
+	{
+		VkQueueFamilyProperties const & queueFamilyProperties = *i;
+
+		int queueFamilyIndex = Device::getQueueFamilyIndex(physicalDevice, queueFamilyProperties, deviceQueueFamilyPropertiesList);
+
+		if (queueFamilyIndex == -1)
+		{
+			return device;
+		}
+
+		const uint32_t queueCount = queueFamilyProperties.queueCount;
+
+		deviceQueuePriorities.resize(queueCount, 1.0f);
+
+		VkDeviceQueueCreateInfo deviceQueueCreateInfo;
+
+		deviceQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		deviceQueueCreateInfo.flags = 0;
+		deviceQueueCreateInfo.queueCount = queueCount;
+		deviceQueueCreateInfo.pQueuePriorities = deviceQueuePriorities.data();
+		deviceQueueCreateInfo.queueFamilyIndex = queueFamilyIndex;
+		deviceQueueCreateInfo.pNext = nullptr;
+
+		deviceQueueCreateInfoList.push_back(deviceQueueCreateInfo);
+
+		device->m_queueFamilyIndices.push_back(queueFamilyIndex);
+	}
 
 	VkPhysicalDeviceFeatures enabledDeviceFeatures;
 	vkGetPhysicalDeviceFeatures(physicalDevice, &enabledDeviceFeatures);
@@ -64,8 +92,8 @@ DevicePtr DeviceFactory::createDevice(VulkanInstancePtr const & vulkanInstance, 
 	deviceCreateInfo.ppEnabledExtensionNames = deviceExtensionNames.data();
 	deviceCreateInfo.enabledLayerCount = 0;
 	deviceCreateInfo.ppEnabledLayerNames = nullptr;
-	deviceCreateInfo.queueCreateInfoCount = 1;
-	deviceCreateInfo.pQueueCreateInfos = &deviceQueueCreateInfo;
+	deviceCreateInfo.queueCreateInfoCount = deviceQueueCreateInfoList.size();
+	deviceCreateInfo.pQueueCreateInfos = deviceQueueCreateInfoList.data();
 	deviceCreateInfo.pEnabledFeatures = &enabledDeviceFeatures;
 	deviceCreateInfo.pNext = nullptr;
 
@@ -78,7 +106,6 @@ DevicePtr DeviceFactory::createDevice(VulkanInstancePtr const & vulkanInstance, 
 
 	device->m_logicalDevice = logicalDevice;
 	device->m_physicalDevice = physicalDevice;
-	device->m_queueFamilyIndex = queueFamilyIndex;
 
 	return device;
 }

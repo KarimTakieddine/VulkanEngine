@@ -31,30 +31,18 @@ int Device::getPhysicalDeviceIndex
 
 int Device::getQueueFamilyIndex
 (
-	VkPhysicalDevice physicalDevice,
-	uint32_t requiredCount,
-	VkQueueFlags requiredFlags
+	VkPhysicalDevice const & physicalDevice,
+	VkQueueFamilyProperties const & requiredQueueFamilyProperties,
+	QueueFamilyPropertiesList const & queueFamilyPropertiesList
 )
 {
-	uint32_t deviceQueueFamilyCount = 0;
-
-	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &deviceQueueFamilyCount, nullptr);
-
-	if (deviceQueueFamilyCount == 0)
-	{
-		return -1;
-	}
-
-	std::vector<VkQueueFamilyProperties> queueFamilyPropertiesList(deviceQueueFamilyCount);
-	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &deviceQueueFamilyCount, queueFamilyPropertiesList.data());
-
 	for (uint32_t i = 0; i < queueFamilyPropertiesList.size(); ++i)
 	{
 		VkQueueFamilyProperties const & queueFamilyProperties = queueFamilyPropertiesList[i];
 
 		if (
-			(queueFamilyProperties.queueCount >= requiredCount) &&
-			((queueFamilyProperties.queueFlags & requiredFlags) == requiredFlags)
+			( queueFamilyProperties.queueCount >= requiredQueueFamilyProperties.queueCount ) &&
+			( (queueFamilyProperties.queueFlags & requiredQueueFamilyProperties.queueFlags) == requiredQueueFamilyProperties.queueFlags )
 		)
 		{
 			return i;
@@ -68,28 +56,30 @@ Device::Device()
 :
 m_logicalDevice(VK_NULL_HANDLE),
 m_physicalDevice(VK_NULL_HANDLE),
-m_queueFamilyIndex()
+m_queueFamilyIndices()
 {
 
 }
 
 Device::Device(Device && r_value)
+:
+m_queueFamilyIndices(r_value.m_queueFamilyIndices)
 {
 	std::swap(m_logicalDevice, r_value.m_logicalDevice);
 	std::swap(m_physicalDevice, r_value.m_physicalDevice);
-	std::swap(m_queueFamilyIndex, r_value.m_queueFamilyIndex);
 }
 
 Device & Device::operator=(Device && r_value)
 {
+	m_queueFamilyIndices = r_value.m_queueFamilyIndices;
+
 	std::swap(m_logicalDevice, r_value.m_logicalDevice);
 	std::swap(m_physicalDevice, r_value.m_physicalDevice);
-	std::swap(m_queueFamilyIndex, r_value.m_queueFamilyIndex);
 
 	return *this;
 }
 
-VkDevice Device::getLogicalDevice()
+VkDevice & Device::getLogicalDevice()
 {
 	return m_logicalDevice;
 }
@@ -99,7 +89,7 @@ VkDevice const & Device::getLogicalDevice() const
 	return m_logicalDevice;
 }
 
-VkPhysicalDevice Device::getPhysicalDevice()
+VkPhysicalDevice & Device::getPhysicalDevice()
 {
 	return m_physicalDevice;
 }
@@ -107,6 +97,16 @@ VkPhysicalDevice Device::getPhysicalDevice()
 VkPhysicalDevice const & Device::getPhysicalDevice() const
 {
 	return m_physicalDevice;
+}
+
+std::vector<uint32_t> & Device::getQueueFamilyIndices()
+{
+	return m_queueFamilyIndices;
+}
+
+std::vector<uint32_t> const & Device::getQueueFamilyIndices() const
+{
+	return m_queueFamilyIndices;
 }
 
 Device::~Device()

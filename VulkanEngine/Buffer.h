@@ -1,6 +1,7 @@
 #pragma once
 
 #include "stdafx.h"
+#include "DeviceFactory.h"
 
 /*
 	Buffers are the simplest type of resource and are used
@@ -12,54 +13,40 @@ typedef std::vector<uint32_t> QueueFamilyIndexList;
 
 class Buffer
 {
+	friend class BufferFactory;
+
 public:
 
-	Buffer();
+	Buffer(Buffer const &) = delete;
+	Buffer & operator=(Buffer const &) = delete;
 
-	Buffer
-	(
-		VkDeviceSize size,
-		VkBufferUsageFlags usageFlags,
-		VkSharingMode sharingMode,
-		QueueFamilyIndexList queueFamilyIndexList,
-		VkDevice logicalDevice
-	);
+	Buffer(Buffer && r_value);
+	Buffer & operator=(Buffer && r_value);
 
 	VkBuffer getHandle() const;
 
-	VkDeviceMemory getMemoryHandle() const;
-
-	VkMemoryRequirements const & getMemoryRequirements() const;
-
-	bool getMemoryTypeIndex
+	static int getMemoryTypeIndex
 	(
-		VkPhysicalDevice physicalDevice,
 		VkMemoryPropertyFlags requiredFlags,
-		uint32_t * outIndex
-	) const;
-
-	bool allocate
-	(
-		VkPhysicalDevice physicalDevice,
-		VkMemoryPropertyFlags memoryPropertyFlags
+		VkMemoryRequirements const & memoryRequirements,
+		VkPhysicalDevice const & physicalDevice
 	);
 
-	bool fill
+	VkResult fill
 	(
 		void * hostData,
-		VkDeviceSize offset
+		VkDeviceSize offset = 0
 	);
 
 	~Buffer();
 
 private:
 
-	Buffer(Buffer const & other);
+	Buffer();
 
-	VkMemoryRequirements	m_memoryRequirements;
-	VkDeviceMemory			m_deviceMemory;
-	VkDeviceSize			m_byteSize;
-	VkBuffer				m_handle;
-	VkDevice				m_logicalDevice;
-	VkResult				m_createStatus;
+	DevicePtr m_device;
+	VkDeviceMemory m_deviceMemory;
+	VkDeviceSize m_byteSize;
+	VkDeviceSize m_deviceSize;
+	VkBuffer m_handle;
 };

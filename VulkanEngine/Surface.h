@@ -1,11 +1,19 @@
 #pragma once
 
 #include "stdafx.h"
-#include "VulkanInstance.h"
+#include "VulkanInstanceFactory.h"
 
 class Surface
 {
+	friend class SurfaceFactory;
+
 public:
+
+	Surface(Surface const &) = delete;
+	Surface & operator=(Surface const &) = delete;
+
+	Surface(Surface && r_value);
+	Surface & operator=(Surface && r_value);
 
 	VkSurfaceKHR getHandle() const;
 
@@ -15,6 +23,6 @@ private:
 
 	Surface();
 
-	std::shared_ptr<VulkanInstance> m_vulkanInstance;
+	VulkanInstancePtr m_vulkanInstance;
 	VkSurfaceKHR m_handle;
 };

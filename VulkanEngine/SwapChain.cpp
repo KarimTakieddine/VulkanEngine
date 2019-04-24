@@ -7,30 +7,23 @@ m_device(),
 m_handle(VK_NULL_HANDLE)
 { }
 
-SwapChain::SwapChain(std::shared_ptr<Device> const & device)
-:
-m_device(device),
-m_handle(VK_NULL_HANDLE)
-{ }
-
 SwapChain::SwapChain(SwapChain && r_value)
+:
+m_device(r_value.m_device)
 {
-	std::swap(m_device, r_value.m_device);
 	std::swap(m_handle, r_value.m_handle);
 }
 
 SwapChain & SwapChain::operator=(SwapChain && r_value)
 {
-	release();
-	clear();
-
 	m_device = r_value.m_device;
+
 	std::swap(m_handle, r_value.m_handle);
 
 	return *this;
 }
 
-int SwapChain::getFormatIndex(VkPhysicalDevice physicalDevice, VkSurfaceFormatKHR requiredFormat, std::shared_ptr<Surface> const & surface)
+int SwapChain::getFormatIndex(VkSurfaceFormatKHR const & requiredFormat, SurfacePtr const & surface, VkPhysicalDevice const & physicalDevice)
 {
 	const VkSurfaceKHR surfaceInstance = surface->getHandle();
 
@@ -69,17 +62,7 @@ VkSwapchainKHR SwapChain::getHandle() const
 	return m_handle;
 }
 
-void SwapChain::release()
-{
-	vkDestroySwapchainKHR(m_device->getLogicalDevice(), m_handle, nullptr);
-}
-
-void SwapChain::clear()
-{
-	m_handle = VK_NULL_HANDLE;
-}
-
 SwapChain::~SwapChain()
 {
-	release();
+	vkDestroySwapchainKHR(m_device->getLogicalDevice(), m_handle, nullptr);
 }

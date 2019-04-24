@@ -20,3 +20,6 @@
 typedef std::vector<char const *> CStringList;
 typedef std::vector<VkPhysicalDevice> PhysicalDeviceList;
 typedef std::vector<VkSurfaceFormatKHR> SurfaceFormatList;
+typedef std::vector<VkImage> ImageList;
+typedef std::vector<VkQueueFamilyProperties> QueueFamilyPropertiesList;
+typedef std::vector<VkDeviceQueueCreateInfo> DeviceQueueCreateInfoList;

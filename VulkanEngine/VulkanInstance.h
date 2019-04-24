@@ -14,7 +14,7 @@ public:
 	VulkanInstance(VulkanInstance && r_value);
 	VulkanInstance & operator=(VulkanInstance && r_value);
 
-	VkInstance getState();
+	VkInstance & getState();
 	VkInstance const & getState() const;
 
 	~VulkanInstance();

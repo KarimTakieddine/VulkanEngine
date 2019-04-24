@@ -3,74 +3,47 @@
 
 Buffer::Buffer()
 :
-m_memoryRequirements(),
-m_logicalDevice		(VK_NULL_HANDLE),
-m_handle			(VK_NULL_HANDLE),
-m_createStatus		(VK_ERROR_INITIALIZATION_FAILED)
+m_device(),
+m_handle(VK_NULL_HANDLE),
+m_deviceMemory(VK_NULL_HANDLE),
+m_byteSize(),
+m_deviceSize()
 {}
 
-Buffer::Buffer
-(
-	VkDeviceSize size,
-	VkBufferUsageFlags usageFlags,
-	VkSharingMode sharingMode,
-	QueueFamilyIndexList queueFamilyIndexList,
-	VkDevice logicalDevice
-)
+Buffer::Buffer(Buffer && r_value)
 :
-m_memoryRequirements(),
-m_logicalDevice		(logicalDevice),
-m_handle			(VK_NULL_HANDLE)
+m_device(r_value.m_device)
 {
-	VkBufferCreateInfo bufferCreateInfo;
-	bufferCreateInfo.sType					= VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-	bufferCreateInfo.flags					= 0;
-	bufferCreateInfo.pNext					= nullptr;
-	bufferCreateInfo.size					= size;
-	bufferCreateInfo.usage					= usageFlags;
-	bufferCreateInfo.sharingMode			= sharingMode;
-	bufferCreateInfo.queueFamilyIndexCount	= queueFamilyIndexList.size();
-	bufferCreateInfo.pQueueFamilyIndices	= &queueFamilyIndexList[0];
-
-	m_createStatus = vkCreateBuffer(logicalDevice, &bufferCreateInfo, nullptr, &m_handle);
-
-	if (m_createStatus == VK_SUCCESS)
-	{
-		vkGetBufferMemoryRequirements(logicalDevice, m_handle, &m_memoryRequirements);
-		m_byteSize = size;
-	}
+	std::swap(m_handle, r_value.m_handle);
+	std::swap(m_deviceMemory, r_value.m_deviceMemory);
+	std::swap(m_byteSize, r_value.m_byteSize);
+	std::swap(m_deviceSize, r_value.m_deviceSize);
 }
 
-Buffer::Buffer(Buffer const & other)
-:
-m_memoryRequirements(),
-m_logicalDevice		(VK_NULL_HANDLE),
-m_handle			(VK_NULL_HANDLE),
-m_createStatus		(VK_ERROR_INITIALIZATION_FAILED)
-{}
+Buffer & Buffer::operator=(Buffer && r_value)
+{
+	m_device = r_value.m_device;
+
+	std::swap(m_handle, r_value.m_handle);
+	std::swap(m_deviceMemory, r_value.m_deviceMemory);
+	std::swap(m_byteSize, r_value.m_byteSize);
+	std::swap(m_deviceSize, r_value.m_deviceSize);
+
+	return *this;
+}
 
 VkBuffer Buffer::getHandle() const
 {
 	return m_handle;
 }
 
-VkDeviceMemory Buffer::getMemoryHandle() const
-{
-	return m_deviceMemory;
-}
-
-VkMemoryRequirements const & Buffer::getMemoryRequirements() const
-{
-	return m_memoryRequirements;
-}
-
-bool Buffer::getMemoryTypeIndex
+int Buffer::getMemoryTypeIndex
 (
-	VkPhysicalDevice physicalDevice,
 	VkMemoryPropertyFlags requiredFlags,
-	uint32_t * outIndex
+	VkMemoryRequirements const & memoryRequirements,
+	VkPhysicalDevice const & physicalDevice
 
-) const
+)
 {
 	VkPhysicalDeviceMemoryProperties memoryProperties;
 
@@ -80,39 +53,16 @@ bool Buffer::getMemoryTypeIndex
 
 	for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; ++i)
 	{
-		if ((m_memoryRequirements.memoryTypeBits & (1 << i)) && ((memoryTypes[i].propertyFlags & requiredFlags) == requiredFlags))
+		if ((memoryRequirements.memoryTypeBits & (1 << i)) && ((memoryTypes[i].propertyFlags & requiredFlags) == requiredFlags))
 		{
-			*outIndex = i;
-			return true;
+			return i;
 		}
 	}
 
-	return false;
+	return -1;
 }
 
-bool Buffer::allocate
-(
-	VkPhysicalDevice physicalDevice,
-	VkMemoryPropertyFlags memoryPropertyFlags
-)
-{
-	VkMemoryAllocateInfo memoryAllocateInfo;
-	uint32_t memoryTypeIndex;
-
-	if (!getMemoryTypeIndex(physicalDevice, memoryPropertyFlags, &memoryTypeIndex))
-	{
-		return false;
-	}
-
-	memoryAllocateInfo.sType			= VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-	memoryAllocateInfo.allocationSize	= m_memoryRequirements.size;
-	memoryAllocateInfo.memoryTypeIndex	= memoryTypeIndex;
-	memoryAllocateInfo.pNext			= nullptr;
-
-	return vkAllocateMemory(m_logicalDevice, &memoryAllocateInfo, nullptr, &m_deviceMemory) == VK_SUCCESS;
-}
-
-bool Buffer::fill
+VkResult Buffer::fill
 (
 	void * hostData,
 	VkDeviceSize offset
@@ -120,20 +70,26 @@ bool Buffer::fill
 {
 	void * deviceData = nullptr;
 
-	if (vkMapMemory(m_logicalDevice, m_deviceMemory, 0, m_byteSize, 0, &deviceData) != VK_SUCCESS)
+	VkDevice const & logicalDevice = m_device->getLogicalDevice();
+
+	VkResult memoryMapStatus = vkMapMemory(logicalDevice, m_deviceMemory, 0, m_byteSize, 0, &deviceData);
+
+	if (memoryMapStatus != VK_SUCCESS)
 	{
-		return false;
+		return memoryMapStatus;
 	}
 
 	memcpy(deviceData, hostData, m_byteSize);
 
-	vkUnmapMemory(m_logicalDevice, m_deviceMemory);
+	vkUnmapMemory(logicalDevice, m_deviceMemory);
 
-	return true;
+	return VK_SUCCESS;
 }
 
 Buffer::~Buffer()
 {
-	vkDestroyBuffer(m_logicalDevice, m_handle, nullptr);
-	vkFreeMemory(m_logicalDevice, m_deviceMemory, nullptr);
+	VkDevice const & logicalDevice = m_device->getLogicalDevice();
+
+	vkDestroyBuffer(logicalDevice, m_handle, nullptr);
+	vkFreeMemory(logicalDevice, m_deviceMemory, nullptr);
 }

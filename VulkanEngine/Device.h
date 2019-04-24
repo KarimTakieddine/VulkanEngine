@@ -19,9 +19,9 @@ public:
 
 	static int getQueueFamilyIndex
 	(
-		VkPhysicalDevice physicalDevice,
-		uint32_t requiredCount,
-		VkQueueFlags requiredFlags
+		VkPhysicalDevice const & physicalDevice,
+		VkQueueFamilyProperties const & requiredQueueFamilyProperties,
+		QueueFamilyPropertiesList const & queueFamilyPropertiesList
 	);
 
 	Device(Device const &) = delete;
@@ -30,11 +30,14 @@ public:
 	Device(Device && r_value);
 	Device & operator=(Device && r_value);
 
-	VkDevice getLogicalDevice();
+	VkDevice & getLogicalDevice();
 	VkDevice const & getLogicalDevice() const;
 
-	VkPhysicalDevice getPhysicalDevice();
+	VkPhysicalDevice & getPhysicalDevice();
 	VkPhysicalDevice const & getPhysicalDevice() const;
+
+	std::vector<uint32_t> & getQueueFamilyIndices();
+	std::vector<uint32_t> const & getQueueFamilyIndices() const;
 
 	~Device();
 
@@ -44,5 +47,5 @@ private:
 
 	VkDevice m_logicalDevice;
 	VkPhysicalDevice m_physicalDevice;
-	uint32_t m_queueFamilyIndex;
+	std::vector<uint32_t> m_queueFamilyIndices;
 };

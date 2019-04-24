@@ -13,7 +13,7 @@ VulkanInstance & VulkanInstance::operator=(VulkanInstance && r_value)
 	return *this;
 }
 
-VkInstance VulkanInstance::getState()
+VkInstance & VulkanInstance::getState()
 {
 	return m_state;
 }

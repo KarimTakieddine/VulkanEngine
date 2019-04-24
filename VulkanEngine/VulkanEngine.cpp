@@ -14,6 +14,10 @@
 #include "MatrixTransform.h"
 #include "SceneUniform.h"
 #include "Time.h"
+#include "SwapChainFactory.h"
+#include "ImageViewFactory.h"
+#include "ShaderModuleFactory.h"
+#include "BufferFactory.h"
 
 int main()
 {
@@ -35,6 +39,23 @@ int main()
 		enabledLayerNames
 	);
 
+	QueueFamilyPropertiesList queueFamilyPropertiesList;
+
+	VkQueueFamilyProperties queueFamilyProperties;
+
+	queueFamilyProperties.queueCount = 1;
+	queueFamilyProperties.queueFlags = VK_QUEUE_TRANSFER_BIT | VK_QUEUE_GRAPHICS_BIT;
+
+	queueFamilyPropertiesList.push_back(queueFamilyProperties);
+
+	DeviceContext deviceContext
+	(
+		queueFamilyPropertiesList,
+		VersionNumber(391, 140, 0),
+		VersionNumber(1, 1, 77),
+		CStringList(1, "VK_KHR_swapchain")
+	);
+
 	WindowContext windowContext
 	(
 		640,
@@ -42,18 +63,71 @@ int main()
 		"Vulkan Window"
 	);
 
-	DeviceContext deviceContext
+	VkSurfaceFormatKHR surfaceFormat;
+
+	surfaceFormat.colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+	surfaceFormat.format = VK_FORMAT_B8G8R8A8_UNORM;
+
+	SwapChainContext swapChainContext
 	(
-		1,
-		VK_QUEUE_TRANSFER_BIT | VK_QUEUE_GRAPHICS_BIT,
-		VersionNumber(391, 140, 0),
-		VersionNumber(1, 1, 77),
-		CStringList(1, "VK_KHR_swapchain")
+		VK_TRUE,
+		VK_PRESENT_MODE_FIFO_KHR,
+		VK_SHARING_MODE_EXCLUSIVE,
+		surfaceFormat
 	);
 
 	VulkanInstancePtr vulkanInstance = VulkanInstanceFactory::createVulkanInstance(instanceContext);
+
 	DevicePtr device = DeviceFactory::createDevice(vulkanInstance, deviceContext);
-	
+
+	WindowPtr window = WindowFactory::createWindow(windowContext);
+
+	SurfacePtr surface = SurfaceFactory::createSurface(vulkanInstance, window);
+
+	SwapChainPtr swapChain = SwapChainFactory::createSwapChain(device, surface, swapChainContext);
+
+	ImagePtrList swapChainImages = ImageFactory::createImages(device, surface, swapChain);
+
+	ImageViewPtrList imageViews = ImageViewFactory::createImageViews(device, surfaceFormat, swapChainImages);
+
+	ShaderModulePtr vertexShader = ShaderModuleFactory::createShaderModule(device, "Shaders\\SPIR-V\\vert.spv");
+
+	ShaderModulePtr fragmentShader = ShaderModuleFactory::createShaderModule(device, "Shaders\\SPIR-V\\frag.spv");
+
+	BufferContext vertexBufferContext
+	(
+		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+		VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+		VK_SHARING_MODE_EXCLUSIVE
+	);
+
+	Vertex vertexData[4] =
+	{
+		Vertex(Vector3(-0.5f, -0.5f, 0.0f), Vector3(1.0f, 0.0f, 0.0f)),
+		Vertex(Vector3(0.5f, -0.5f, 0.0f), Vector3(0.0f, 1.0f, 0.0f)),
+		Vertex(Vector3(0.5f, 0.5f, 0.0f), Vector3(0.0f, 0.0f, 1.0f)),
+		Vertex(Vector3(-0.5f, 0.5f, 0.0f), Vector3(0.0f, 0.0f, 1.0f)),
+	};
+
+	BufferPtr vertexBuffer = BufferFactory::createBuffer(device, vertexBufferContext, 4 * sizeof(Vertex));
+	vertexBuffer->fill(reinterpret_cast<void *>(vertexData));
+
+	BufferContext indexBufferContext
+	(
+		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+		VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+		VK_SHARING_MODE_EXCLUSIVE
+	);
+
+	uint16_t indexData[6] =
+	{
+		0, 1, 2,
+		2, 3, 0
+	};
+
+	BufferPtr indexBuffer = BufferFactory::createBuffer(device, indexBufferContext, 6 * sizeof(uint16_t));
+	indexBuffer->fill(reinterpret_cast<void *>(indexData));
+
 	/*std::vector<char const *> enabledExtensionNames;
 
 	EngineApplication & engineApplication = EngineApplication::getInstance();
@@ -74,9 +148,6 @@ int main()
 	);
 
 	engineApplication.initializeDevice(VersionNumber(391, 140, 0));*/
-
-
-
 
 	//VersionNumber apiVersionNumber(1, 0, 65);
 	//VersionNumber applicationVersionNumber(1, 0, 0);
